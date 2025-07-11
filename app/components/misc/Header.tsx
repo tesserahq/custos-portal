@@ -131,7 +131,7 @@ export default function Header({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="grid max-h-[400px] grid-cols-3 gap-1 overflow-auto px-5 py-3"
+                  className="grid max-h-[400px] grid-cols-2 gap-1 overflow-auto px-5 py-3"
                   align="end">
                   {apps.map((app) => {
                     return (
