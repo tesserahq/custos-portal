@@ -1,5 +1,80 @@
-import { Outlet } from '@remix-run/react'
+import Header from '@/components/misc/Header'
+import SidebarPanel, { IMenuItemProps } from '@/components/misc/Sidebar/SidebarPanel'
+import SidebarPanelMin from '@/components/misc/Sidebar/SidebarPanelMin'
+import '@/styles/customs/sidebar.css'
+import { cn } from '@/utils/misc'
+import { Outlet, useLoaderData } from '@remix-run/react'
+import { Home } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+export function loader() {
+  const hostUrl = process.env.HOST_URL
+  const apiUrl = process.env.API_URL
+  const nodeEnv = process.env.NODE_ENV
+
+  return { hostUrl, apiUrl, nodeEnv }
+}
 
 export default function Layout() {
-  return <Outlet />
+  const { hostUrl } = useLoaderData<typeof loader>()
+  const [isExpanded, setIsExpanded] = useState(true)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const menuItems: IMenuItemProps[] = [
+    {
+      title: 'Home',
+      path: `/home`,
+      icon: <Home size={18} />,
+    },
+  ]
+
+  const onResize = useCallback(() => {
+    if (containerRef.current) {
+      if (containerRef.current.offsetWidth <= 1280) {
+        setIsExpanded(false)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    onResize()
+
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      window.removeEventListener('resize', onResize)
+    }
+  }, [onResize])
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn('has-min-sidebar is-header-blur', isExpanded && 'is-sidebar-open')}>
+      <div id="root" className="min-h-100vh flex grow">
+        <div className="sidebar print:hidden">
+          <SidebarPanel
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+            menuItems={menuItems}
+          />
+          <SidebarPanelMin
+            isExpanded={isExpanded}
+            setIsExpanded={setIsExpanded}
+            menuItems={menuItems}
+          />
+        </div>
+
+        <Header
+          withSidebar
+          hostUrl={hostUrl}
+          isExpanded={isExpanded}
+          setIsExpanded={setIsExpanded}
+        />
+
+        <main className="main-content w-full">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  )
 }

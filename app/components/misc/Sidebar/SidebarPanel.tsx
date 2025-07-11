@@ -42,7 +42,7 @@ export default function SidebarPanel({
               <Avatar className="avatar">
                 <AvatarImage src="/images/logo.png" />
               </Avatar>
-              <span className="brand-name">Quore</span>
+              <span className="brand-name">Custos</span>
             </div>
           </Link>
           <div className="mr-2 xl:hidden">
@@ -58,7 +58,7 @@ export default function SidebarPanel({
                 <li
                   key={item.path}
                   className={cn(
-                    'flex items-center justify-between hover:bg-slate-50 dark:hover:bg-background',
+                    'flex items-center justify-between rounded hover:bg-slate-50 dark:hover:bg-background',
                     (pathname === item.path || getActiveMenu(item.title)) &&
                       'bg-accent hover:bg-accent',
                   )}>

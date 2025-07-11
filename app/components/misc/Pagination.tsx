@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IPagingInfo } from '@/types/pagination'
 import {
   PaginationComponent,
   PaginationContent,
@@ -17,6 +16,7 @@ import { useScopedParams } from '@/utils/scoped_params'
 import { useNavigate } from '@remix-run/react'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { IPagingInfo } from '@/types/pagination'
 
 export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
   const { getScopedSearch } = useScopedParams()
