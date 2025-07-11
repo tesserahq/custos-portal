@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown'
 import Separator from '@/components/ui/separator'
 import MenuToggle from '@/components/misc/MenuToggle'
+import { useState } from 'react'
 
 interface IHeaderProps {
   action?: React.ReactNode
@@ -35,6 +36,7 @@ export default function Header({
   const submit = useSubmit()
   const { user, logout } = useAuth0()
   const navigate = useNavigate()
+  const [isOpenAppMenu, setIsOpenAppMenu] = useState<boolean>(false)
   const onSetTheme = () => {
     submit(
       { theme: requestInfo.userPrefs.theme === 'dark' ? 'light' : 'dark' },
@@ -49,16 +51,12 @@ export default function Header({
 
   const apps = [
     {
-      name: 'linden',
-      link: 'https://linden.estate-buddy.com/',
-    },
-    {
       name: 'quore',
-      link: 'https://quore.estate-buddy.com/',
+      link: 'https://quore.estate-buddy.com?autologin=true',
     },
     {
       name: 'vaulta',
-      link: 'https://vaulta.estate-buddy.com/',
+      link: 'https://vaulta.estate-buddy.com?autologin=true',
     },
   ]
 
@@ -120,12 +118,15 @@ export default function Header({
                   </svg>
                 )}
               </button>
-              <DropdownMenu>
+              <DropdownMenu open={isOpenAppMenu} onOpenChange={setIsOpenAppMenu}>
                 <DropdownMenuTrigger asChild className="cursor-pointer">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0">
+                    className={cn(
+                      'focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0',
+                      isOpenAppMenu && 'bg-accent',
+                    )}>
                     <Grip />
                   </Button>
                 </DropdownMenuTrigger>
@@ -137,6 +138,8 @@ export default function Header({
                       <Link
                         key={app.name}
                         to={app.link}
+                        target="_blank"
+                        rel="noreferrer"
                         className="flex flex-col items-center justify-center rounded-lg px-4 py-2 transition-all duration-200 hover:bg-accent">
                         <Avatar>
                           <AvatarImage src={`/images/apps/${app.name}-logo.png`} />
