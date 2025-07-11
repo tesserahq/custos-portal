@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button'
 import { SITE_CONFIG } from '@/constants/brand'
 import { useAuth0 } from '@auth0/auth0-react'
 import type { MetaFunction } from '@remix-run/node'
-import { Navigate } from '@remix-run/react'
+import { Navigate, useSearchParams } from '@remix-run/react'
+import { useEffect } from 'react'
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,6 +15,13 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const { isAuthenticated, isLoading, error, loginWithRedirect } = useAuth0()
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('autologin')) {
+      loginWithRedirect()
+    }
+  }, [])
 
   if (error) {
     return <div>Oops... {error.message}</div>
