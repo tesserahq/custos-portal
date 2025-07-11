@@ -1,22 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRequestInfo } from '@/hooks/useRequestInfo'
-import { getCurrentUrl, setCurrentUrl } from '@/libraries/storage'
 import { ROUTE_PATH as THEME_PATH } from '@/routes/resources+/update-theme'
 import { cn } from '@/utils/misc'
 import { useAuth0 } from '@auth0/auth0-react'
-import { Link, useLocation, useNavigate, useSubmit } from '@remix-run/react'
-import { Bot, LogOut } from 'lucide-react'
-import { Avatar, AvatarImage } from '../ui/avatar'
-import { Button } from '../ui/button'
+import { Link, useNavigate, useSubmit } from '@remix-run/react'
+import { Grip, LogOut, Play } from 'lucide-react'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown'
-import Separator from '../ui/separator'
-import { Toggle } from '../ui/toggle'
-import MenuToggle from './MenuToggle'
+} from '@/components/ui/dropdown'
+import Separator from '@/components/ui/separator'
+import MenuToggle from '@/components/misc/MenuToggle'
+import { useState } from 'react'
 
 interface IHeaderProps {
   action?: React.ReactNode
@@ -35,9 +34,9 @@ export default function Header({
 }: IHeaderProps) {
   const requestInfo = useRequestInfo()
   const submit = useSubmit()
-  const location = useLocation()
-  const navigate = useNavigate()
   const { user, logout } = useAuth0()
+  const navigate = useNavigate()
+  const [isOpenAppMenu, setIsOpenAppMenu] = useState<boolean>(false)
   const onSetTheme = () => {
     submit(
       { theme: requestInfo.userPrefs.theme === 'dark' ? 'light' : 'dark' },
@@ -50,13 +49,24 @@ export default function Header({
     )
   }
 
+  const apps = [
+    {
+      name: 'quore',
+      link: 'https://quore.estate-buddy.com?autologin=true',
+    },
+    {
+      name: 'vaulta',
+      link: 'https://vaulta.estate-buddy.com?autologin=true',
+    },
+  ]
+
   return (
     <>
       <nav className="header animate-slide-down print:hidden">
         <div className="header-container relative flex w-full print:hidden">
           <div className="flex w-full items-center justify-between space-x-5">
             {/* Left content */}
-            <div className={cn('flex items-center gap-2', withSidebar && 'ml-4')}>
+            <div className={cn('flex items-center gap-2', withSidebar && 'ml-0')}>
               {withSidebar ? (
                 <MenuToggle onClick={() => setIsExpanded!(!isExpanded)} />
               ) : (
@@ -79,27 +89,13 @@ export default function Header({
             </div>
 
             {/* Right content */}
-            <div className="-mr-1 flex items-center space-x-5">
-              <Toggle
-                pressed={location.pathname === '/assistant'}
-                variant="outline"
-                className="data-[state=on]:bg-[#85d5de] data-[state=on]:dark:bg-[#287f92]"
-                onPressedChange={(pressed) => {
-                  if (pressed) {
-                    setCurrentUrl(location.pathname) // save current url to localStorage
-                    navigate('/assistant')
-                  } else {
-                    // back to current Url
-                    const currentUrl = getCurrentUrl()
-
-                    navigate(currentUrl || '/')
-                  }
-                }}>
-                <Bot />
-                Assistant Mode
-              </Toggle>
+            <div className="mr-10 flex items-center space-x-3">
+              <Button size="sm" variant="outline" onClick={() => navigate('/setup')}>
+                <Play />
+                Re-run
+              </Button>
               <button
-                className="btn rounded-full p-0 hover:bg-slate-300/20 focus:bg-slate-300/20 active:bg-slate-300/25 dark:hover:bg-navy-300/20 dark:focus:bg-navy-300/20 dark:active:bg-navy-300/25"
+                className="btn rounded-full p-0 hover:bg-accent focus:bg-accent active:bg-slate-300/25 dark:hover:bg-navy-300/20 dark:focus:bg-navy-300/20 dark:active:bg-navy-300/25"
                 onClick={onSetTheme}>
                 {requestInfo.userPrefs.theme === 'dark' ? (
                   <svg
@@ -122,6 +118,39 @@ export default function Header({
                   </svg>
                 )}
               </button>
+              <DropdownMenu open={isOpenAppMenu} onOpenChange={setIsOpenAppMenu}>
+                <DropdownMenuTrigger asChild className="cursor-pointer">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      'focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0',
+                      isOpenAppMenu && 'bg-accent',
+                    )}>
+                    <Grip />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="grid max-h-[400px] grid-cols-2 gap-1 overflow-auto px-5 py-3"
+                  align="end">
+                  {apps.map((app) => {
+                    return (
+                      <Link
+                        key={app.name}
+                        to={app.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex flex-col items-center justify-center rounded-lg px-4 py-2 transition-all duration-200 hover:bg-accent">
+                        <Avatar>
+                          <AvatarImage src={`/images/apps/${app.name}-logo.png`} />
+                        </Avatar>
+                        <span className="text-xs capitalize">{app.name}</span>
+                      </Link>
+                    )
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild className="cursor-pointer">
                   <Avatar>

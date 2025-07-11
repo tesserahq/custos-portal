@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button'
 import { SITE_CONFIG } from '@/constants/brand'
 import { useAuth0 } from '@auth0/auth0-react'
 import type { MetaFunction } from '@remix-run/node'
-import { Navigate } from '@remix-run/react'
+import { Navigate, useSearchParams } from '@remix-run/react'
+import { useEffect } from 'react'
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,6 +15,13 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const { isAuthenticated, isLoading, error, loginWithRedirect } = useAuth0()
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('autologin')) {
+      loginWithRedirect()
+    }
+  }, [])
 
   if (error) {
     return <div>Oops... {error.message}</div>
@@ -24,12 +32,12 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/setup" />
+    return <Navigate to="/home" />
   }
 
   return (
-    <div className="flex h-screen w-full animate-slide-up flex-col items-center justify-center gap-4 bg-white lg:flex-row">
-      <img src="/images/login.jpg" alt="login" className="w-96 rounded-lg" />
+    <div className="flex h-screen w-full animate-slide-up flex-col items-center justify-center gap-5 bg-white lg:flex-row">
+      <img src="/images/login.png" alt="login" className="w-96 rounded-lg" />
       <div className="max-w-[400px] flex-col items-center lg:items-start">
         <h1 className="mt-3 text-3xl font-semibold dark:text-foreground">
           Welcome back!
