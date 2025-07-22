@@ -1,24 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Header from '@/components/misc/Header'
 import SidebarPanel, { IMenuItemProps } from '@/components/misc/Sidebar/SidebarPanel'
 import SidebarPanelMin from '@/components/misc/Sidebar/SidebarPanelMin'
 import '@/styles/customs/sidebar.css'
 import { cn } from '@/utils/misc'
+import { useAuth0 } from '@auth0/auth0-react'
 import { Outlet, useLoaderData } from '@remix-run/react'
 import { Home } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 export function loader() {
-  const hostUrl = process.env.HOST_URL
   const apiUrl = process.env.API_URL
-  const nodeEnv = process.env.NODE_ENV
+  const identiesApiUrl = process.env.IDENTIES_API_URL
+  const identiesHosturl = process.env.IDENTIES_HOST_URL
 
-  return { hostUrl, apiUrl, nodeEnv }
+  return { apiUrl, identiesApiUrl, identiesHosturl }
 }
 
 export default function Layout() {
-  const { hostUrl } = useLoaderData<typeof loader>()
+  const { identiesApiUrl, identiesHosturl } = useLoaderData<typeof loader>()
   const [isExpanded, setIsExpanded] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
+  const { getAccessTokenSilently } = useAuth0()
+  const [token, setToken] = useState<string>('')
 
   const menuItems: IMenuItemProps[] = [
     {
@@ -36,6 +41,15 @@ export default function Layout() {
     }
   }, [])
 
+  const fetchToken = async () => {
+    try {
+      const token = await getAccessTokenSilently()
+      setToken(token)
+    } catch (error: any) {
+      toast.error(error.message)
+    }
+  }
+
   useEffect(() => {
     onResize()
 
@@ -45,6 +59,10 @@ export default function Layout() {
       window.removeEventListener('resize', onResize)
     }
   }, [onResize])
+
+  useEffect(() => {
+    fetchToken()
+  }, [])
 
   return (
     <div
@@ -65,8 +83,10 @@ export default function Layout() {
         </div>
 
         <Header
+          token={token!}
+          identiesApiUrl={identiesApiUrl!}
+          identiesHostUrl={identiesHosturl!}
           withSidebar
-          hostUrl={hostUrl}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
         />

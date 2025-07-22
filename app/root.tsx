@@ -140,8 +140,16 @@ function Document({
 }
 
 export default function AppWithProviders() {
-  const { locale, toast, csrfToken, clientID, domain, audience, hostUrl, organizationID } =
-    useLoaderData<typeof loader>()
+  const {
+    locale,
+    toast,
+    csrfToken,
+    clientID,
+    domain,
+    audience,
+    hostUrl,
+    organizationID,
+  } = useLoaderData<typeof loader>()
 
   const nonce = useNonce()
   const theme = useTheme()
