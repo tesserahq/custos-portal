@@ -137,7 +137,7 @@ export default function Header({
 
               <IdentiesProvider
                 config={{
-                  baseURL: identiesApiUrl,
+                  identiesApiUrl: identiesApiUrl,
                   token: token,
                 }}>
                 <ProfileMenu

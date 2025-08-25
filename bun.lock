@@ -33,12 +33,12 @@
         "cmdk": "^1.1.1",
         "compression": "^1.7.5",
         "cookie": "^1.0.2",
+        "core-ui": "git+https://github.com/estate-buddy-tech/core-ui.git",
         "cross-env": "^7.0.3",
         "curl-generator": "^0.4.2",
         "date-fns": "^4.1.0",
         "express": "^4.21.2",
         "express-rate-limit": "^7.5.0",
-        "core-ui": "git+https://github.com/estate-buddy-tech/core-ui.git",
         "helmet": "^7.2.0",
         "i18next": "^23.16.8",
         "i18next-browser-languagedetector": "^8.0.2",
@@ -625,7 +625,7 @@
 
     "axe-core": ["axe-core@4.10.2", "", {}, "sha512-RE3mdQ7P3FRSe7eqCWoeQ/Z9QXrtniSjp1wUjt5nRC3WIpz5rSCve6o3fsZ2aCpJtrZjSZgjwXAoTO5k4tEI0w=="],
 
-    "axios": ["axios@1.10.0", "", { "dependencies": { "follow-redirects": "^1.15.6", "form-data": "^4.0.0", "proxy-from-env": "^1.1.0" } }, "sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw=="],
+    "axios": ["axios@1.11.0", "", { "dependencies": { "follow-redirects": "^1.15.6", "form-data": "^4.0.4", "proxy-from-env": "^1.1.0" } }, "sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA=="],
 
     "axobject-query": ["axobject-query@4.1.0", "", {}, "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="],
 
@@ -745,7 +745,7 @@
 
     "cookie-signature": ["cookie-signature@1.2.2", "", {}, "sha512-D76uU73ulSXrD1UXF4KE2TMxVVwhsnCgfAyTg9k8P6KGZjlXKrOLe4dJQKI3Bxi5wjesZoFXJWElNWBjPZMbhg=="],
 
-    "core-ui": ["core-ui@github:estate-buddy-tech/core-ui#a5d4cb5", { "dependencies": { "axios": "^1.10.0" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0", "tailwindcss": "^4.1.11" } }, "estate-buddy-tech-core-ui-a5d4cb5"],
+    "core-ui": ["core-ui@github:estate-buddy-tech/core-ui#165087c", { "dependencies": { "axios": "^1.10.0" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0", "tailwindcss": "^4.1.11" } }, "estate-buddy-tech-core-ui-165087c"],
 
     "core-util-is": ["core-util-is@1.0.3", "", {}, "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ=="],
 
@@ -965,7 +965,7 @@
 
     "flatted": ["flatted@3.3.2", "", {}, "sha512-AiwGJM8YcNOaobumgtng+6NHuOqC3A7MixFeDafM3X9cIUM+xUXoS5Vfgf+OihAYe20fxqNM9yPBXJzRtZ/4eA=="],
 
-    "follow-redirects": ["follow-redirects@1.15.9", "", {}, "sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ=="],
+    "follow-redirects": ["follow-redirects@1.15.11", "", {}, "sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ=="],
 
     "for-each": ["for-each@0.3.4", "", { "dependencies": { "is-callable": "^1.2.7" } }, "sha512-kKaIINnFpzW6ffJNDjjyjrk21BkDx38c0xa/klsT8VzLCaMEefv4ZTacrcVR4DmgTeBra++jMDAfS/tS799YDw=="],
 
