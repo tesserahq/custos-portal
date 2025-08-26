@@ -745,7 +745,7 @@
 
     "cookie-signature": ["cookie-signature@1.2.2", "", {}, "sha512-D76uU73ulSXrD1UXF4KE2TMxVVwhsnCgfAyTg9k8P6KGZjlXKrOLe4dJQKI3Bxi5wjesZoFXJWElNWBjPZMbhg=="],
 
-    "core-ui": ["core-ui@github:estate-buddy-tech/core-ui#165087c", { "dependencies": { "axios": "^1.10.0" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0", "tailwindcss": "^4.1.11" } }, "estate-buddy-tech-core-ui-165087c"],
+    "core-ui": ["core-ui@github:estate-buddy-tech/core-ui#756277d", { "dependencies": { "axios": "^1.10.0" }, "peerDependencies": { "react": "^19.1.0", "react-dom": "^19.1.0", "tailwindcss": "^4.1.11" } }, "estate-buddy-tech-core-ui-756277d"],
 
     "core-util-is": ["core-util-is@1.0.3", "", {}, "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ=="],
 
