@@ -1,5 +1,5 @@
 export default {
-  title: 'Custos Portal',
+  title: 'Looply Portal',
   description:
     'Welcome to Remix Bun, where speed meets style! This tech-powered remix takes your web apps to the next level.',
   description2:
