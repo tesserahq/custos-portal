@@ -1,4 +1,5 @@
 import { vitePlugin as remix } from '@remix-run/dev'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import { flatRoutes } from 'remix-flat-routes'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -14,9 +15,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './app'),
+      '@shadcn': resolve(__dirname, './app/modules/shadcn'),
     },
   },
   plugins: [
+    tailwindcss(),
     remix({
       serverModuleFormat: 'esm',
       ignoredRouteFiles: ['**/.*'],

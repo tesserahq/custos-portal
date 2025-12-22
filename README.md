@@ -1,106 +1,117 @@
-# Welcome to Custos Portal
+<p align="center">
+  <img width="200px" src="./public/images/logo-full.png">
+  
+  <h2 align="center">Custos Portal</h2>
+  <p align="center">
+    A modern web portal for centralized authorization management
+  </p>
+</p>
 
-## Development
+---
 
-Run the dev server:
+## Overview
 
-```shellscript
-bun run dev
-```
+**Custos** is the centralized authorization service for the Linden platform. It serves as the single source of truth for all access control logic and data across the platform.
 
-## Production
+### Core Responsibilities
 
-First, build your app for production:
+- **Centralize authorization decisions** for all services
+- **Enforce role-based and resource-based access control**
+- **Expose APIs to**:
+  - Check permissions
+  - Assign and manage roles
+  - Query permissions for UI display
+- **Serve as the source of truth** for all access control logic and data
 
-```sh
-bun run build
-```
+## Getting Started
 
-Then run the app in production mode:
+### Prerequisites
 
-```sh
-bun run start
-```
+- **Node.js**: Version 22.21.1
+- **Package Manager**: bun 1.3.5
 
-# App Design
+### Installation
 
-### 1. Project Structure and Organization
+1. **Clone the repository**
 
-We will implement a robust and scalable project structure leveraging **[Remix](https://hygraph.com/blog/remix-vs-next) file-based routing** and conventions. This approach will ensure long-term maintainability, ease of development, and efficient team collaboration.
+   ```bash
+   git clone <repository-url>
+   cd custos-portal
+   ```
 
-- **Modular Feature-Based Organization**: Components, styles, and logic related to specific features will be grouped in dedicated directories.
-- **Clear Separation of Concerns**: Maintain a strict separation between components, hooks, utilities, and resources/services.
-  - `components/`, `hooks/`, `utils/`, `resources/api/`, `resources/state`
-- **Absolute Imports with Aliases**: Use absolute imports for better readability (`@components`, `@hooks`, `@utils`).
-- **Consistent Naming Conventions**:
-  - **Components**: PascalCase (`UserProfile.tsx`)
-  - **Hooks**: camelCase with 'use' prefix (`useAuth.ts`)
-  - **Utilities**: camelCase (`formatDate.ts`)
-  - **Types/Interfaces**: PascalCase with type/interface prefix (`TUser`, `IUser`)
-  - **Constants**: UPPERCASE (`API_ENDPOINTS`)
-- **Optimized for [Remix](https://hygraph.com/blog/remix-vs-next)**: This structure will take full advantage of [Remix](https://hygraph.com/blog/remix-vs-next) features like file-based routing, server components, and data fetching, leading to improved performance, SEO, and a better developer experience.
+2. **Set up environment variables**
 
-### 2. Component Design and Styling
+   Create a `.env` file in the root directory with the following variables:
 
-- **Modern Components**: We'll use modern functional components and React Hooks for cleaner, easier-to-test code.
-- **Reusability**: Components will be designed for maximum reusability, saving time and ensuring consistency.
-- **Type Safety**: TypeScript will ensure code quality and reduce errors by enforcing type checking.
-- **Fast UI with [shadcn/ui](https://ui.shadcn.com/)**: [shadcn/ui](https://ui.shadcn.com/) will accelerate UI development, delivering a beautiful and consistent interface quickly.
-- **Stylish with [Tailwind](https://tailwindcss.com/)**: [Tailwind](https://tailwindcss.com/) CSS will ensure consistent and efficient styling across the app.
-- **Tested**: Thorough testing will ensure each component functions correctly and reliably.
+   ```env
+   # Auth0 Configuration
+   AUTH0_CLIENT_ID=your_auth0_client_id
+   AUTH0_DOMAIN=your_auth0_domain
+   AUTH0_AUDIENCE=your_auth0_audience
+   AUTH0_ORGANIZATION_ID=your_auth0_organization_id
 
-### 3. State Management
+   # Application Configuration
+   HOST_URL=http://localhost:3000
+   NODE_ENV=development
+   API_URL=https://api.example.com
+   IDENTIES_API_URL=https://example.com/api
+   IDENTIES_HOST=https://example.com/api
+   ```
 
-- **Lightweight Global State (if applicable)**: We will leverage **Jotai**, a pragmatic and performant atom-based state management library.
-- **Scalable State Management (if applicable)**: If needed, we'll use **Zustand** for simplicity and minimal boilerplate, or **[TanStack Query](https://tanstack.com/query/latest)** for efficient server state and data fetching.
-- **Minimized Global State**: We’ll prioritize local component state whenever possible.
-- **React Context for Sharing Data**: Used for limited state sharing between components without prop drilling.
+3. **Run the development server**
 
-### 4. API Communication
+   ```bash
+   bun install
+   ```
 
-- **Optimized Data Fetching and Caching**: Leveraging **[TanStack Query](https://tanstack.com/query/latest)** for efficient data fetching, caching, and state synchronization.
-- **Centralized API Service Layer**: A dedicated `api/` or `resources/api/` directory will house all API communication logic.
-- **Robust UI State Handling**: Includes loading indicators, user-friendly error messages, and appropriate success notifications.
-- **Server Components**: Handling data fetching logic directly on the server for better performance and SEO.
+   ```bash
+   bun run dev
+   ```
 
-### 5. Performance Optimization
+4. **Open your browser**
 
-- **Server Components**: Using server-side rendering to reduce client-side JavaScript and improve initial load times.
-- **Strategic Memoization**: Using `useMemo` and `useCallback` to reduce unnecessary re-renders.
-- **Lazy Loading**: Implementing `React.lazy` and `Suspense` for improved initial load times.
-- **Debouncing/Throttling**: Used for expensive operations triggered by user interactions.
-- **[Remix](https://hygraph.com/blog/remix-vs-next)-Specific Optimizations**:
-  - **Nested Routing and Data Loading**: Fetching only required data for specific UI parts.
-  - **Transitions for Smooth Navigation**: Using [Remix](https://hygraph.com/blog/remix-vs-next)'s transitions API.
+   Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
 
-### 6. Testing
+### Run with docker
 
-- **Component Testing**: Using **[Jest](https://jestjs.io/)** and **React Testing Library**.
-- **End-to-End (E2E) Testing**: Using **[Cypress](https://www.cypress.io/)** or **Playwright**.
-- **Integration Testing**: Ensuring seamless interactions between components and APIs.
-- **API Testing**: Ensuring endpoints handle requests and responses correctly.
-- **Test-Driven Development (TDD)**: Writing tests before implementing features where appropriate.
-- **Continuous Integration**: Automating tests in a CI pipeline.
+1. Build the image
 
-### 7. Accessibility (A11y)
+   ```bash
+   docker build -t custos-portal .
+   ```
 
-- Follow **WCAG guidelines** to ensure accessibility compliance.
-- Use semantic HTML elements (`<button>`, `<nav>`, `<article>`).
-- Ensure keyboard navigation and screen reader support.
-- Use tools like **Axe** or **Lighthouse** to check for accessibility issues.
+2. Run the container
 
-### 8. Code Quality and Maintainability
+   ```bash
+   docker run -p 3000:3000 custos-portal:latest
+   ```
 
-- Enforce **code formatting** with **Prettier** and **ESLint**.
-- Use **Git hooks (Husky)** to enforce linting and testing before commits.
-- Maintain **clear and concise documentation** for components and utilities.
-- Follow **DRY (Don’t Repeat Yourself)** and **KISS (Keep It Simple, Stupid)** principles.
+### Production Build
 
-### 9. Deployment and CI/CD
+1. **Build the application**
 
-- Use **GitHub Actions** for automated testing and deployment.
-- Ensure proper **environment configuration** (dotenv for API keys and secrets).
-- Implement **feature flags** for rolling out new features gradually.
-- Monitor performance and errors using tools like **Sentry** or **LogRocket**.
+   ```bash
+   bun run build
+   ```
 
-By following these best practices, we ensure that our new **React portal** is scalable, maintainable, and performant while delivering a great user experience. Additionally, this will serve as the foundation for future portals, ensuring **consistency and efficiency** across all projects.
+2. **Start the production server**
+   ```bash
+   bun run start
+   ```
+
+### Available Scripts
+
+- `dev` - Start the development server
+- `build` - Build the application for production
+- `start` - Start the production server
+- `lint` - Run ESLint for code linting
+- `typecheck` - Run TypeScript type checking
+- `format` - Format code with Prettier
+
+### Development Notes
+
+- The application uses Vite for fast development builds and hot module replacement
+- TypeScript is configured for strict type checking
+- ESLint and Prettier are configured for consistent code formatting
+- The app includes internationalization support with i18next
+- Authentication is handled through Auth0 integration

@@ -1,36 +1,43 @@
+import { Auth0Provider } from '@auth0/auth0-react'
+import type { LinksFunction, LoaderFunctionArgs, TypedResponse } from '@remix-run/node'
 import {
+  data,
   Links,
   Meta,
   MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
-  data,
   useLoaderData,
-  useNavigate,
 } from '@remix-run/react'
-import type { LinksFunction, LoaderFunctionArgs, TypedResponse } from '@remix-run/node'
 import { useChangeLanguage } from 'remix-i18next/react'
-import { Auth0Provider } from '@auth0/auth0-react'
 import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
 // Import global CSS styles for the application
 // The ?url query parameter tells the bundler to handle this as a URL import
+import SpinnerCSS from '@/styles/spinner.css?url'
 import RootCSS from '@/styles/root.css?url'
-import SpinnerCSS from '@/styles/customs/spinner.css?url'
+import 'react-day-picker/style.css'
+import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-country-state-city.css?url'
+import { ClientHintCheck } from '@/components/misc/ClientHints'
+import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
+import { Toaster } from '@shadcn/ui/sonner'
 import { SITE_CONFIG } from '@/constants/brand'
+import { getHints } from '@/hooks/useHints'
+import { useNonce } from '@/hooks/useNonce'
+import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
+import { useToast } from '@/hooks/useToast'
+import i18nServer, { localeCookie } from '@/modules/i18n/i18n.server'
+import { csrf } from '@/utils/csrf.server'
 import { combineHeaders, getDomainUrl } from '@/utils/misc.server'
 import { getToastSession } from '@/utils/toast.server'
-import { csrf } from '@/utils/csrf.server'
-import { getHints } from '@/hooks/useHints'
-import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
-import i18nServer, { localeCookie } from '@/modules/i18n/i18n.server'
-import { Toaster } from '@/components/ui/sonner'
-import { ClientHintCheck } from '@/components/misc/ClientHints'
-import { useNonce } from '@/hooks/useNonce'
-import { useToast } from '@/hooks/useToast'
-import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
-import { ProgressBar } from './components/misc/ProgressBar'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { ProgressBar } from './components/loader/progress-bar'
+import { AppProvider } from './context/AppContext'
+import { ReactQueryProvider } from './modules/react-query'
+
+library.add(fab)
 
 export const handle = { i18n: ['translation'] }
 
@@ -50,6 +57,7 @@ export const links: LinksFunction = () => {
   return [
     { rel: 'stylesheet', href: RootCSS },
     { rel: 'stylesheet', href: SpinnerCSS },
+    { rel: 'stylesheet', href: ReactCountryStateCityCSS },
   ]
 }
 
@@ -69,10 +77,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const audience = process.env.AUTH0_AUDIENCE
   const organizationID = process.env.AUTH0_ORGANIZATION_ID
   const hostUrl = process.env.HOST_URL
+  const identiesApiUrl = process.env.IDENTIES_API_URL
+  const nodeEnv = process.env.NODE_ENV
 
   return data(
     {
       hostUrl,
+      identiesApiUrl,
+      nodeEnv,
       user,
       locale,
       toast,
@@ -92,9 +104,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       headers: combineHeaders(
         { 'Set-Cookie': await localeCookie.serialize(locale) },
         toastHeaders,
-        csrfCookieHeader ? { 'Set-Cookie': csrfCookieHeader } : null,
+        csrfCookieHeader ? { 'Set-Cookie': csrfCookieHeader } : null
       ),
-    },
+    }
   )
 }
 
@@ -123,7 +135,7 @@ function Document({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
           rel="stylesheet"></link>
         <ClientHintCheck nonce={nonce} />
         <Meta />
@@ -149,13 +161,13 @@ export default function AppWithProviders() {
     audience,
     hostUrl,
     organizationID,
+    identiesApiUrl,
+    nodeEnv,
   } = useLoaderData<typeof loader>()
 
   const nonce = useNonce()
   const theme = useTheme()
-  const navigate = useNavigate()
 
-  // Updates the i18n instance language.
   useChangeLanguage(locale)
 
   // Renders toast (if any).
@@ -168,16 +180,17 @@ export default function AppWithProviders() {
         <Auth0Provider
           domain={domain ?? ''}
           clientId={clientID ?? ''}
-          // useRefreshTokens={true}
-          onRedirectCallback={() => {
-            navigate(hostUrl || 'http://localhost:3000')
-          }}
           authorizationParams={{
             redirect_uri: hostUrl || 'http://localhost:3000',
             organization: organizationID,
             audience: audience,
           }}>
-          <Outlet />
+          {/* To check if the route is a public gazette share page */}
+          <AppProvider identiesApiUrl={identiesApiUrl!} nodeEnv={nodeEnv}>
+            <ReactQueryProvider>
+              <Outlet />
+            </ReactQueryProvider>
+          </AppProvider>
         </Auth0Provider>
       </AuthenticityTokenProvider>
     </Document>
@@ -192,9 +205,7 @@ export function ErrorBoundary() {
     <Document nonce={nonce} theme={theme}>
       <GenericErrorBoundary
         statusHandlers={{
-          403: ({ error }) => (
-            <p>You are not allowed to do that: {error?.data.message}</p>
-          ),
+          403: ({ error }) => <p>You are not allowed to do that: {error?.data.message}</p>,
         }}
       />
     </Document>

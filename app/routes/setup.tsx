@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppPreloader } from '@/components/misc/AppPreloader'
-import { Button } from '@/components/ui/button'
+import { AppPreloader } from '@/components/loader/pre-loader'
+import { Button } from '@shadcn/ui/button'
 import { fetchApi } from '@/libraries/fetch'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useLoaderData, useNavigate } from '@remix-run/react'
@@ -76,8 +76,8 @@ export default function SetupPage() {
                   System Administrator Setup Required
                 </h1>
                 <p className="mb-5 text-base opacity-70 dark:text-foreground">
-                  To proceed, please complete the system administrator setup with click
-                  button below.
+                  To proceed, please complete the system administrator setup with click button
+                  below.
                 </p>
                 <Button disabled={isLoadingSetup} onClick={onSetup}>
                   Set Up Now
@@ -85,14 +85,14 @@ export default function SetupPage() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-2 text-center lg:max-w-[600px]">
+            <div
+              className="flex flex-col items-center justify-center gap-2 text-center
+                lg:max-w-[600px]">
               <img src="/images/image-complete.png" className="w-96" />
               <h1 className="text-3xl font-semibold dark:text-white">
                 System Administrator Setup Complete
               </h1>
-              <p className="mb-3 text-base opacity-70 dark:text-foreground">
-                {setup?.message}
-              </p>
+              <p className="mb-3 text-base opacity-70 dark:text-foreground">{setup?.message}</p>
               <Button disabled={isLoadingSetup} onClick={() => navigate('/home')}>
                 Back to Home
               </Button>
