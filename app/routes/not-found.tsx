@@ -1,6 +1,6 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from 'react-router'
 import { HelpCircle } from 'lucide-react'
-import { SITE_CONFIG } from '@/constants/brand'
+import { SITE_CONFIG } from '@/utils/config/site.config'
 import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
 
 export const meta: MetaFunction = () => {

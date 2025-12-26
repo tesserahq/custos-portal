@@ -1,5 +1,4 @@
 /**
-/**
  * HTTP.
  */
 export const HOST_URL =

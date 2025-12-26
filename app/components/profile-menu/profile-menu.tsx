@@ -4,7 +4,7 @@ import { Avatar, AvatarImage } from '@shadcn/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@shadcn/ui/dropdown'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
 import { cn } from '@shadcn/lib/utils'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate } from 'react-router'
 import { useApp } from '@/context/AppContext'
 
 interface Props {

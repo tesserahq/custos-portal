@@ -7,9 +7,13 @@ const schema = z.object({
   PROD_HOST_URL: z.string().optional(),
 })
 
+type EnvSchema = z.infer<typeof schema>
+
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof schema> {}
+    interface ProcessEnv extends EnvSchema {
+      [key: string]: string | undefined
+    }
   }
 }
 
@@ -30,11 +34,5 @@ export function getSharedEnvs() {
   return {
     DEV_HOST_URL: process.env.DEV_HOST_URL,
     PROD_HOST_URL: process.env.PROD_HOST_URL,
-  }
-}
-
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof schema> {}
   }
 }

@@ -37,7 +37,7 @@
 .sidebar .sidebar-nav li a:active,
 .sidebar .sidebar-nav li a.active:hover,
 .sidebar .sidebar-nav li a:active:hover {
-  @apply bg-accent dark:bg-accent dark:text-primary font-semibold text-black;
+  @apply bg-accent dark:bg-accent font-semibold text-black dark:text-white;
 }
 
 .sidebar-switcher {

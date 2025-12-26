@@ -1,5 +1,5 @@
 import { cn } from '@shadcn/lib/utils'
-import { useNavigation } from '@remix-run/react'
+import { useNavigation } from 'react-router'
 import { useEffect, useRef, useState } from 'react'
 
 export function ProgressBar() {

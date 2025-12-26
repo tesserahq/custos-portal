@@ -3,9 +3,11 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import { Button } from '@shadcn/ui/button'
 import { fetchApi } from '@/libraries/fetch'
 import { useAuth0 } from '@auth0/auth0-react'
-import { useLoaderData, useNavigate } from '@remix-run/react'
+import { useLoaderData, useNavigate } from 'react-router'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useApp } from '@/context/AppContext'
+import { useHandleApiError } from '@/hooks/useHandleApiError'
 
 export async function loader() {
   const apiUrl = process.env.API_URL
@@ -18,44 +20,45 @@ export default function SetupPage() {
   const navigate = useNavigate()
   const [setup, setSetup] = useState<{ setup_required: string; message: string }>()
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
-  const { getAccessTokenSilently } = useAuth0()
+  const { token } = useApp()
+  const handleApiError = useHandleApiError()
   const [isLoadingSetup, setIsLoadingSetup] = useState<boolean>(false)
   const [isLoadingFetch, setIsLodingFetch] = useState<boolean>(true)
 
   const fetchData = async () => {
     try {
-      const token = await getAccessTokenSilently()
-      const res = await fetchApi(`${apiUrl}/setup/system-status`, token, nodeEnv)
+      const res = await fetchApi(`${apiUrl}/setup/system-status`, token!, nodeEnv)
 
       setSetup(res)
     } catch (error: any) {
-      toast.error(error.message)
+      handleApiError(error)
+    } finally {
+      setIsLodingFetch(false)
     }
-
-    setIsLodingFetch(false)
   }
 
   const onSetup = async () => {
     setIsLoadingSetup(true)
 
     try {
-      const token = await getAccessTokenSilently()
-      const res = await fetchApi(`${apiUrl}/setup`, token, nodeEnv, {
+      const res = await fetchApi(`${apiUrl}/setup`, token!, nodeEnv, {
         method: 'POST',
       })
 
       toast.success('System administrator setup completed successfully.')
       setSetup({ setup_required: 'false', message: res.message })
     } catch (error: any) {
-      toast.error(error.message)
+      handleApiError(error)
+    } finally {
+      setIsLoadingSetup(false)
     }
-
-    setIsLoadingSetup(false)
   }
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    if (token) {
+      fetchData()
+    }
+  }, [token])
 
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-background">
@@ -93,7 +96,7 @@ export default function SetupPage() {
                 System Administrator Setup Complete
               </h1>
               <p className="mb-3 text-base opacity-70 dark:text-foreground">{setup?.message}</p>
-              <Button disabled={isLoadingSetup} onClick={() => navigate('/home')}>
+              <Button disabled={isLoadingSetup} onClick={() => navigate('/')}>
                 Back to Home
               </Button>
             </div>

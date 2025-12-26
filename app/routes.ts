@@ -1,0 +1,22 @@
+import { type RouteConfig, index, layout, prefix, route } from '@react-router/dev/routes'
+
+export default [
+  // Theme
+  route('/resources/update-theme', 'routes/resources/update-theme.ts'),
+
+  // Home Route
+  route('/', 'routes/index.tsx', { id: 'home' }),
+
+  route('setup', 'routes/setup/index.tsx'),
+
+  // Private Routes
+  layout('layouts/private.layouts.tsx', [
+    route('roles', 'routes/main/roles/layout.tsx', [index('routes/main/roles/index.tsx')]),
+  ]),
+
+  // Logout Route
+  route('logout', 'routes/logout.tsx', { id: 'logout' }),
+
+  // Catch-all route for 404 errors - must be last
+  route('*', 'routes/not-found.tsx'),
+] as RouteConfig
