@@ -2,7 +2,6 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { Button } from '@shadcn/ui/button'
 import { fetchApi } from '@/libraries/fetch'
-import { useAuth0 } from '@auth0/auth0-react'
 import { useLoaderData, useNavigate } from 'react-router'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'

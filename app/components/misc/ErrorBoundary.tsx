@@ -1,3 +1,4 @@
+import { JSX } from 'react'
 import type { ErrorResponse } from 'react-router'
 import { isRouteErrorResponse, useParams, useRouteError } from 'react-router'
 
