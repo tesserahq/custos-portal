@@ -1,9 +1,9 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { Button } from '@shadcn/ui/button'
-import { SITE_CONFIG } from '@/constants/brand'
+import { SITE_CONFIG } from '@/utils/config/site.config'
 import { useAuth0 } from '@auth0/auth0-react'
-import type { MetaFunction } from '@remix-run/node'
-import { Navigate, useSearchParams } from '@remix-run/react'
+import type { MetaFunction } from 'react-router'
+import { Navigate, useSearchParams } from 'react-router'
 import { useEffect } from 'react'
 
 export const meta: MetaFunction = () => {
@@ -32,7 +32,7 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/home" />
+    return <Navigate to="/roles" />
   }
 
   return (

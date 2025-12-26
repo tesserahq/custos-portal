@@ -2,31 +2,37 @@ import { Header, SidebarPanel, SidebarPanelMin } from '@/components/layouts'
 import { IMenuItemProps } from '@/components/layouts/sidebar/types'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
-import '@/styles/sidebar.css'
 import { cn } from '@shadcn/lib/utils'
-import { Outlet, useLoaderData } from '@remix-run/react'
-import { Home } from 'lucide-react'
+import { ShieldUser } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Outlet, useLoaderData } from 'react-router'
+import '@/styles/sidebar.css'
 
 export function loader() {
   const apiUrl = process.env.API_URL
   const hostUrl = process.env.HOST_URL
   const nodeEnv = process.env.NODE_ENV
+  // app host urls
+  const quoreHostUrl = process.env.QUORE_HOST_URL
+  const looplyHostUrl = process.env.LOOPLY_HOST_URL
+  const vaultaHostUrl = process.env.VAULTA_HOST_URL
+  const identiesHostUrl = process.env.IDENTIES_HOST_URL
 
-  return { apiUrl, hostUrl, nodeEnv }
+  return { apiUrl, hostUrl, nodeEnv, quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl }
 }
 
 export default function Layout() {
-  const { apiUrl, hostUrl, nodeEnv } = useLoaderData<typeof loader>()
+  const { apiUrl, hostUrl, nodeEnv, quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl } =
+    useLoaderData<typeof loader>()
   const containerRef = useRef<HTMLDivElement>(null)
   const { isLoading } = useApp()
   const [isExpanded, setIsExpanded] = useState(true)
 
   const menuItems: IMenuItemProps[] = [
     {
-      title: 'Home',
-      path: `/home`,
-      icon: <Home size={18} />,
+      title: 'Roles',
+      path: `/roles`,
+      icon: <ShieldUser size={18} />,
     },
   ]
 
@@ -69,6 +75,12 @@ export default function Layout() {
           hostUrl={hostUrl}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
+          appHostUrls={{
+            quoreHostUrl: quoreHostUrl!,
+            looplyHostUrl: looplyHostUrl!,
+            vaultaHostUrl: vaultaHostUrl!,
+            identiesHostUrl: identiesHostUrl!,
+          }}
         />
 
         <main className="main-content w-full">

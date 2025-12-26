@@ -1,4 +1,4 @@
-import { useLocation } from '@remix-run/react'
+import { useLocation } from 'react-router'
 
 export function getScopedParams(request: Request, scope: string = '') {
   const url = new URL(request.url)

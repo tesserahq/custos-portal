@@ -4,8 +4,8 @@
  */
 export const SITE_CONFIG = {
   siteTitle: 'Custos Portal',
-  siteDescription: '',
-  siteUrl: 'https://app.estate-buddy.com',
+  siteDescription: 'A modern web portal for centralized authorization management',
+  siteUrl: 'https://custos.mylinden.family',
   siteImage: '/images/logo.png',
   favicon: '/favicon.ico',
 }

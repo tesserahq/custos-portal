@@ -1,5 +1,4 @@
-import { createRequestHandler } from '@remix-run/express'
-import { installGlobals } from '@remix-run/node'
+import { createRequestHandler } from '@react-router/express'
 import crypto from 'crypto'
 import express from 'express'
 import compression from 'compression'
@@ -9,7 +8,6 @@ import rateLimit from 'express-rate-limit'
 
 // Info about Single Fetch and `installGlobals`:
 // https://remix.run/docs/en/main/guides/single-fetch#enabling-single-fetch
-installGlobals({ nativeFetch: true })
 
 const PORT = process.env.PORT || 3000
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
@@ -37,7 +35,14 @@ const app = express()
 app.disable('x-powered-by')
 
 app.use(compression())
-app.use(morgan('tiny'))
+app.use(
+  morgan('dev', {
+    skip: (req) => {
+      // Skip logging for static assets and HMR requests
+      return req.url?.startsWith('/assets') || req.url?.startsWith('/@')
+    },
+  })
+)
 
 /**
  * Content Security Policy.
@@ -133,18 +138,35 @@ if (viteDevServer) {
   app.use(viteDevServer.middlewares)
 } else {
   app.use('/assets', express.static('build/client/assets', { immutable: true, maxAge: '1y' }))
-}
-// Everything else (like favicon.ico) is cached for an hour.
-// You may want to be more aggressive with this caching.
-app.use(express.static('build/client', { maxAge: '1h' }))
+  // Everything else (like favicon.ico) is cached for an hour.
+  // You may want to be more aggressive with this caching.
+  app.use(express.static('build/client', { maxAge: '1h' }))
 
-app.use(['/img', '/favicons'], (req, res) => {
-  // If we've gone beyond express.static for these, it means something is missing.
-  // In this case, we'll simply send a 404 and skip calling other middleware.
-  return res.status(404).send('Not found')
-})
+  app.use(['/img', '/favicons'], (req, res) => {
+    // If we've gone beyond express.static for these, it means something is missing.
+    // In this case, we'll simply send a 404 and skip calling other middleware.
+    return res.status(404).send('Not found')
+  })
+}
 
 // Handle SSR requests.
+let build
+if (viteDevServer) {
+  build = async () => {
+    try {
+      const mod = await viteDevServer.ssrLoadModule('virtual:react-router/server-build')
+      // Vite returns a module namespace; React Router expects the build object.
+      return mod.default ?? mod
+    } catch (error) {
+      console.error('Error loading React Router build:', error)
+      throw error
+    }
+  }
+} else {
+  const mod = await import('./build/server/index.js')
+  build = mod.default ?? mod
+}
+
 app.all(
   /.*/,
   createRequestHandler({
@@ -152,9 +174,8 @@ app.all(
       cspNonce: res.locals.cspNonce,
     }),
 
-    build: viteDevServer
-      ? () => viteDevServer.ssrLoadModule('virtual:remix/server-build')
-      : await import('./build/server/index.js'),
+    build,
+    mode: NODE_ENV,
   })
 )
 
