@@ -2,11 +2,11 @@ import { Header, SidebarPanel, SidebarPanelMin } from '@/components/layouts'
 import { IMenuItemProps } from '@/components/layouts/sidebar/types'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
+import '@/styles/sidebar.css'
 import { cn } from '@shadcn/lib/utils'
-import { ShieldUser } from 'lucide-react'
+import { KeyRound } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useLoaderData } from 'react-router'
-import '@/styles/sidebar.css'
 
 export function loader() {
   const apiUrl = process.env.API_URL
@@ -32,7 +32,7 @@ export default function Layout() {
     {
       title: 'Roles',
       path: `/roles`,
-      icon: <ShieldUser size={18} />,
+      icon: <KeyRound size={18} />,
     },
   ]
 

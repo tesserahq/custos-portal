@@ -36,6 +36,7 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
         title: '',
         description: '',
         onDelete: () => {},
+        isLoading: false,
       }
     )
 
@@ -50,6 +51,8 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
         setOpen(false)
       },
       updateConfig: (updates: Partial<DeleteConfirmationConfig>) => {
+        console.log('updates ', updates)
+
         setConfig((prev) => ({ ...prev, ...updates }))
       },
     }))

@@ -331,7 +331,7 @@ nav.header .header-container {
 }
 
 .button-link {
-  @apply hover:text-primary font-medium;
+  @apply hover:text-primary font-medium hover:underline;
 }
 
 .no-scrollbar {

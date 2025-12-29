@@ -34,7 +34,7 @@ export const fetchApi = async (
 ) => {
   const headers: any = { 'Content-Type': 'application/json' }
 
-  if (token) {
+  if (token && token.trim() !== '') {
     headers.Authorization = `Bearer ${token}`
   }
 

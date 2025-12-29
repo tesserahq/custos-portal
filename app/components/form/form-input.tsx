@@ -40,6 +40,7 @@ export const FormInput = ({
   hideError = false,
   rules,
   addon,
+  onChange,
   ...props
 }: FormInputProps) => {
   const { form } = useFormContext()
@@ -54,33 +55,45 @@ export const FormInput = ({
           required: required === true ? 'This field is required' : required,
         }),
       }}
-      render={({ field: fieldProps }) => (
-        <FormItem>
-          {label && (
-            <FormLabel
-              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
-              {label}
-            </FormLabel>
-          )}
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormControl>
-            {addon ? (
-              <InputGroup className="rounded-sm border-none bg-gray-100">
-                <InputGroupInput {...fieldProps} {...props} />
-                {addon && (
-                  <InputGroupAddon
-                    align={addon?.position === 'right' ? 'inline-end' : 'inline-start'}>
-                    {addon?.icon}
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            ) : (
-              <Input {...fieldProps} {...props} />
+      render={({ field: fieldProps }) => {
+        // Merge custom onChange with React Hook Form's onChange
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          // Call React Hook Form's onChange first to update form state
+          fieldProps.onChange(e)
+          // Then call custom onChange if provided
+          onChange?.(e)
+        }
+
+        return (
+          <FormItem>
+            {label && (
+              <FormLabel
+                className={
+                  required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''
+                }>
+                {label}
+              </FormLabel>
             )}
-          </FormControl>
-          {!hideError && <FormMessage />}
-        </FormItem>
-      )}
+            {description && <FormDescription>{description}</FormDescription>}
+            <FormControl>
+              {addon ? (
+                <InputGroup className="rounded-sm border-none bg-gray-100">
+                  <InputGroupInput {...fieldProps} {...props} onChange={handleChange} />
+                  {addon && (
+                    <InputGroupAddon
+                      align={addon?.position === 'right' ? 'inline-end' : 'inline-start'}>
+                      {addon?.icon}
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              ) : (
+                <Input {...fieldProps} {...props} onChange={handleChange} />
+              )}
+            </FormControl>
+            {!hideError && <FormMessage />}
+          </FormItem>
+        )
+      }}
     />
   )
 }

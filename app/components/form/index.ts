@@ -1,5 +1,5 @@
 import { Form } from './form'
-import { FormProvider } from './form-context'
+import { FormProvider, useFormContext } from './form-context'
 import { FormDatePicker } from './form-date-picker'
 import { FormDateTimePicker } from './form-datetime-picker'
 import { FormInput } from './form-input'
@@ -23,4 +23,4 @@ const FormCompound = Object.assign(Form, {
   Provider: FormProvider,
 })
 
-export { FormCompound as Form }
+export { FormCompound as Form, useFormContext }
