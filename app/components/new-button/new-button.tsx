@@ -6,14 +6,15 @@ interface IProps {
   label: string
   onClick: () => void
   size?: 'sm' | 'lg' | 'default' | 'xs' | 'icon' | null | undefined
+  disabled?: boolean
 }
 
-export default function NewButton({ label, onClick, size = 'default' }: IProps) {
+export default function NewButton({ label, onClick, size = 'default', disabled = false }: IProps) {
   return (
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button onClick={onClick} size={size}>
+          <Button onClick={onClick} size={size} disabled={disabled}>
             <Plus />
             <span className="font-semibold">New</span>
           </Button>

@@ -11,7 +11,12 @@ export default [
 
   // Private Routes
   layout('layouts/private.layouts.tsx', [
-    route('roles', 'routes/main/roles/layout.tsx', [index('routes/main/roles/index.tsx')]),
+    route('roles', 'routes/main/roles/layout.tsx', [
+      index('routes/main/roles/index.tsx'),
+      route('new', 'routes/main/roles/new.tsx'),
+      route(':id', 'routes/main/roles/detail.tsx'),
+      route(':id/edit', 'routes/main/roles/edit.tsx'),
+    ]),
   ]),
 
   // Logout Route
