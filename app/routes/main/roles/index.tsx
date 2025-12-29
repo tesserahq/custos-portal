@@ -2,6 +2,7 @@ import { DataTable } from '@/components/data-table'
 import { DateTime } from '@/components/datetime'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import EmptyContent from '@/components/empty-content/empty-content'
+import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
 import { useApp } from '@/context/AppContext'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
@@ -171,6 +172,10 @@ export default function RolesIndex() {
     [navigate]
   )
 
+  if (isLoading) {
+    return <AppPreloader />
+  }
+
   if (error) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -185,10 +190,12 @@ export default function RolesIndex() {
   if (data?.items.length === 0) {
     return (
       <EmptyContent
-        image="/images/image-complete.png"
+        image="/images/empty-roles.png"
         title="No roles found"
         description="Get started by creating your first role.">
-        <NewButton label="Create Role" onClick={() => navigate('/roles/new')} />
+        <Button onClick={() => navigate('/roles/new')} variant="black">
+          Start Creating
+        </Button>
       </EmptyContent>
     )
   }
