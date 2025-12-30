@@ -22,18 +22,29 @@ function RoleFormFields() {
   // Auto-generate identifier from name when name changes
   useEffect(() => {
     if (isAutoGenerating && nameValue) {
-      const generatedIdentifier = nameValue.trim().toLowerCase().replace(/\s+/g, '-')
-      form.setValue('identifier', generatedIdentifier, { shouldValidate: false })
+      const generatedIdentifier = nameValue
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-_]/g, '') // Remove invalid characters
+      form.setValue('identifier', generatedIdentifier, { shouldValidate: true })
     }
   }, [nameValue, isAutoGenerating, form])
 
-  // Handle identifier field changes - transform value and stop auto-generation if manually edited
+  // Handle identifier field changes - filter invalid characters and transform value
   const handleIdentifierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsAutoGenerating(false)
-    // Transform the value
-    const transformedValue = e.target.value.trim().toLowerCase().replace(/\s+/g, '-')
-    // Update the event target value so React Hook Form receives the transformed value
-    e.target.value = transformedValue
+
+    // Get the raw input value
+    const rawValue = e.target.value
+
+    // Filter out invalid characters in real-time (only allow a-z, 0-9, -, _)
+    // Convert to lowercase and remove any character that's not lowercase letter, number, hyphen, or underscore
+    const filteredValue = rawValue.toLowerCase().replace(/[^a-z0-9-_]/g, '')
+
+    // Update the input element value to reflect the filtered value
+    // This will be picked up by React Hook Form's onChange handler
+    e.target.value = filteredValue
   }
 
   return (
@@ -43,7 +54,8 @@ function RoleFormFields() {
       <Form.Input
         field="identifier"
         label="Identifier"
-        placeholder="Enter role identifier"
+        placeholder="e.g., admin-role, user_manager"
+        description="Only lowercase letters, numbers, hyphens (-), and underscores (_) are allowed. No spaces or special characters."
         onChange={handleIdentifierChange}
       />
     </>
@@ -69,7 +81,12 @@ export function RoleForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Role
   }
 
   return (
-    <Form schema={roleFormSchema} defaultValues={defaultValues} onSubmit={handleSubmit}>
+    <Form
+      schema={roleFormSchema}
+      defaultValues={defaultValues}
+      onSubmit={handleSubmit}
+      mode="onChange"
+      reValidateMode="onChange">
       <FormLayout title={title}>
         <RoleFormFields />
 
