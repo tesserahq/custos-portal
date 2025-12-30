@@ -1,15 +1,12 @@
 import { useFormContext } from './form-context'
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/modules/shadcn/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/modules/shadcn/ui/form'
 import { Input } from '@/modules/shadcn/ui/input'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/modules/shadcn/ui/input-group'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/modules/shadcn/ui/tooltip'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { CircleQuestionMark } from 'lucide-react'
 import { ComponentProps } from 'react'
+import { cn } from '@shadcn/lib/utils'
 
 interface FormInputProps extends Omit<ComponentProps<typeof Input>, 'name'> {
   field: string
@@ -58,23 +55,44 @@ export const FormInput = ({
       render={({ field: fieldProps }) => {
         // Merge custom onChange with React Hook Form's onChange
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          // Call React Hook Form's onChange first to update form state
+          // If custom onChange is provided, call it first to allow value transformation
+          // This allows preprocessing (like converting to lowercase) before React Hook Form processes it
+          if (onChange) {
+            onChange(e)
+            // The custom onChange may have modified e.target.value, so we use that modified value
+          }
+          // Call React Hook Form's onChange with the (potentially modified) value
           fieldProps.onChange(e)
-          // Then call custom onChange if provided
-          onChange?.(e)
         }
 
         return (
           <FormItem>
             {label && (
-              <FormLabel
-                className={
-                  required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''
-                }>
-                {label}
-              </FormLabel>
+              <div className="flex items-center gap-1">
+                <FormLabel
+                  className={cn(
+                    'mb-0',
+                    required && 'after:text-destructive after:ml-0.5 after:content-["*"]'
+                  )}>
+                  {label}
+                </FormLabel>
+                {description && (
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger className="cursor-pointer">
+                        <CircleQuestionMark size={15} />
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        align="end"
+                        className="text-muted-foreground max-w-[500px]">
+                        {description}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
             )}
-            {description && <FormDescription>{description}</FormDescription>}
             <FormControl>
               {addon ? (
                 <InputGroup className="rounded-sm border-none bg-gray-100">
