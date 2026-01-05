@@ -1,5 +1,3 @@
-import { NodeENVType } from '@/libraries/fetch'
-
 /**
  * Role Type
  */

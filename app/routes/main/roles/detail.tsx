@@ -2,13 +2,15 @@ import { useLoaderData, useNavigate, useParams } from 'react-router'
 import { useRole, useDeleteRole } from '@/resources/hooks/roles/use-role'
 import { useApp } from '@/context/AppContext'
 import { Button } from '@shadcn/ui/button'
-import { Card, CardHeader, CardContent } from '@/modules/shadcn/ui/card'
+import { Card, CardHeader, CardContent, CardTitle } from '@/modules/shadcn/ui/card'
 import { Popover, PopoverTrigger, PopoverContent } from '@/modules/shadcn/ui/popover'
 import { Edit, Trash2, EllipsisVertical } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { format } from 'date-fns'
+import { fetchApi } from '@/libraries/fetch'
+import { PermissionSections } from '@/components/permissions/sections'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
@@ -34,6 +36,19 @@ export default function RoleDetail() {
       navigate('/roles')
     },
   })
+
+  const fetchPermissions = async () => {
+    try {
+      const permissions = await fetchApi(`${apiUrl}/roles/${id}/permissions`, token!, nodeEnv)
+      console.log('permissions ', permissions)
+    } catch (error) {
+      console.log('error ', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchPermissions()
+  }, [])
 
   const handleDelete = () => {
     if (!role) return
@@ -68,7 +83,7 @@ export default function RoleDetail() {
   }
 
   return (
-    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
+    <div className="animate-slide-up mx-auto h-full max-w-screen-lg space-y-3">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -122,6 +137,15 @@ export default function RoleDetail() {
               <dd className="d-content">{format(new Date(role.updated_at + 'z'), 'PPPpp')}</dd>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Permissions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PermissionSections roleId={id} config={config} />
         </CardContent>
       </Card>
 

@@ -40,7 +40,7 @@ export function AppProvider({ children, identiesApiUrl, nodeEnv }: IProviderProp
       setUser(user)
       setToken(token)
     } catch (error: any) {
-      handleApiError!(error?.message || 'Error when get token')
+      handleApiError!(error)
     } finally {
       setLoadingAuth0(false)
     }

@@ -19,6 +19,9 @@ export default [
     ]),
   ]),
 
+  // Access Denied
+  route('access-denies', 'routes/access-denies.tsx'),
+
   // Logout Route
   route('logout', 'routes/logout.tsx', { id: 'logout' }),
 
