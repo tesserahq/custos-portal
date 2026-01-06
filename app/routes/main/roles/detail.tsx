@@ -9,6 +9,8 @@ import { useRef } from 'react'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { format } from 'date-fns'
+import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
+import { PermissionSections } from '@/components/permissions/sections'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
@@ -27,6 +29,10 @@ export default function RoleDetail() {
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
 
   const { data: role, isLoading, error } = useRole(config, id)
+  const { data: rolePermissions = [], isLoading: isLoadingPermissions } = useRolePermissions(
+    config,
+    id
+  )
 
   const { mutateAsync: deleteRole } = useDeleteRole(config, {
     onSuccess: () => {
@@ -47,7 +53,7 @@ export default function RoleDetail() {
     })
   }
 
-  if (isLoading) {
+  if (isLoading || isLoadingPermissions || !token) {
     return <AppPreloader className="min-h-screen" />
   }
 
@@ -68,7 +74,7 @@ export default function RoleDetail() {
   }
 
   return (
-    <div className="animate-slide-up mx-auto h-full max-w-screen-lg">
+    <div className="animate-slide-up mx-auto h-full max-w-screen-lg space-y-5">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -125,6 +131,7 @@ export default function RoleDetail() {
         </CardContent>
       </Card>
 
+      <PermissionSections rolePermissions={rolePermissions} />
       <DeleteConfirmation ref={deleteConfirmationRef} />
     </div>
   )

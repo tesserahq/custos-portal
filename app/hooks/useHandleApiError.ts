@@ -35,7 +35,8 @@ export const useHandleApiError = () => {
         }
 
         if (errorData.status === 403) {
-          return handleTokenExpiration(new UnauthorizedError((error as Error).message))
+          navigate('/access-denies', { replace: true })
+          return false
         }
 
         // For other errors, just show the error message
