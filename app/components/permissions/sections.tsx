@@ -1,242 +1,119 @@
+import EmptyContent from '@/components/empty-content/empty-content'
 import { Badge } from '@/modules/shadcn/ui/badge'
-import { Button } from '@/modules/shadcn/ui/button'
-import {
-  useCreateRolePermission,
-  useDeletePermission,
-  useRolePermissions,
-} from '@/resources/hooks/permissions/use-permission'
-import { IQueryConfig } from '@/resources/queries'
-import { Loader2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { PermissionCard } from './card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/modules/shadcn/ui/card'
+import { Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 interface PermissionSectionsProps {
-  roleId: string
-  config: IQueryConfig
+  rolePermissions: Array<{ object: string; action: string }>
 }
 
-const AVAILABLE_ACTIONS = ['read', 'create', 'update', 'delete'] as const
+export function PermissionSections({ rolePermissions }: PermissionSectionsProps) {
+  const [searchQuery, setSearchQuery] = useState('')
 
-type PermissionKey = string // Format: "object:action"
+  // Group permissions by object
+  const groupedPermissions = useMemo(() => {
+    const groups: Record<string, string[]> = {}
 
-interface PermissionChanges {
-  added: PermissionKey[]
-  removed: PermissionKey[]
-}
+    rolePermissions.forEach((permission) => {
+      if (!groups[permission.object]) {
+        groups[permission.object] = []
+      }
+      groups[permission.object].push(permission.action)
+    })
 
-export function PermissionSections({ roleId, config }: PermissionSectionsProps) {
-  const { data: rolePermissions = [], isLoading } = useRolePermissions(config, roleId)
-  const createPermission = useCreateRolePermission(config)
-  const deletePermission = useDeletePermission(config)
+    // Sort actions within each group
+    Object.keys(groups).forEach((key) => {
+      groups[key].sort()
+    })
 
-  // Local state for desired permissions (what user wants)
-  const [desiredPermissions, setDesiredPermissions] = useState<Set<PermissionKey>>(new Set())
-  const [hasChanges, setHasChanges] = useState(false)
-
-  // Initialize desired permissions from API data
-  useEffect(() => {
-    if (rolePermissions.length > 0) {
-      const initialPermissions = new Set<PermissionKey>(
-        rolePermissions.map((p) => `${p.object}:${p.action}`)
-      )
-      setDesiredPermissions(initialPermissions)
-      setHasChanges(false)
-    }
+    return groups
   }, [rolePermissions])
 
-  // Calculate changes
-  const changes = useMemo<PermissionChanges>(() => {
-    const currentPermissions = new Set<PermissionKey>(
-      rolePermissions.map((p) => `${p.object}:${p.action}`)
-    )
-
-    const added: PermissionKey[] = []
-    const removed: PermissionKey[] = []
-
-    // Find added permissions
-    desiredPermissions.forEach((key) => {
-      if (!currentPermissions.has(key)) {
-        added.push(key)
-      }
-    })
-
-    // Find removed permissions
-    currentPermissions.forEach((key) => {
-      if (!desiredPermissions.has(key)) {
-        removed.push(key)
-      }
-    })
-
-    return { added, removed }
-  }, [desiredPermissions, rolePermissions])
-
-  // Update hasChanges when changes occur
-  useEffect(() => {
-    setHasChanges(changes.added.length > 0 || changes.removed.length > 0)
-  }, [changes])
-
-  const permissions = useMemo(() => {
-    // Get unique objects from both current and desired permissions
-    const currentObjects = new Set(rolePermissions.map((p) => p.object))
-    const desiredObjects = new Set(Array.from(desiredPermissions).map((key) => key.split(':')[0]))
-    return [...new Set([...currentObjects, ...desiredObjects])]
-  }, [rolePermissions, desiredPermissions])
-
-  const hasPermission = (object: string, action: string): boolean => {
-    return desiredPermissions.has(`${object}:${action}`)
-  }
-
-  const hasAllPermissions = (object: string): boolean => {
-    return AVAILABLE_ACTIONS.every((action) => hasPermission(object, action))
-  }
-
-  const handlePermissionChange = (object: string, action: string, checked: boolean) => {
-    const key: PermissionKey = `${object}:${action}`
-    setDesiredPermissions((prev) => {
-      const next = new Set(prev)
-      if (checked) {
-        next.add(key)
-      } else {
-        next.delete(key)
-      }
-      return next
-    })
-  }
-
-  const handleAllPermissionsChange = (object: string, checked: boolean) => {
-    setDesiredPermissions((prev) => {
-      const next = new Set(prev)
-      AVAILABLE_ACTIONS.forEach((action) => {
-        const key: PermissionKey = `${object}:${action}`
-        if (checked) {
-          next.add(key)
-        } else {
-          next.delete(key)
-        }
-      })
-      return next
-    })
-  }
-
-  const handleSave = async () => {
-    try {
-      // Create new permissions
-      const createPromises = changes.added.map((key) => {
-        const [object, action] = key.split(':')
-        return createPermission.mutateAsync({
-          roleId,
-          data: { object, action },
-        })
-      })
-
-      // Delete removed permissions
-      const deletePromises = changes.removed.map((key) => {
-        const [object, action] = key.split(':')
-        const permission = rolePermissions.find((p) => p.object === object && p.action === action)
-        if (permission) {
-          return deletePermission.mutateAsync(permission.id)
-        }
-        return Promise.resolve()
-      })
-
-      await Promise.all([...createPromises, ...deletePromises])
-    } catch (error) {
-      console.error('Failed to save permissions:', error)
+  const filteredPermissions = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return groupedPermissions
     }
-  }
 
-  const handleCancel = () => {
-    // Reset to original permissions
-    const originalPermissions = new Set<PermissionKey>(
-      rolePermissions.map((p) => `${p.object}:${p.action}`)
-    )
-    setDesiredPermissions(originalPermissions)
-  }
+    const query = searchQuery.toLowerCase()
+    const filtered: Record<string, string[]> = {}
 
-  const formatPermissionKey = (key: PermissionKey): string => {
-    const [object, action] = key.split(':')
-    return `${object}:${action}`
-  }
+    Object.entries(groupedPermissions).forEach(([object, actions]) => {
+      // Check if object name matches or any action matches
+      const objectMatches = object.toLowerCase().includes(query)
+      const matchingActions = actions.filter((action) => action.toLowerCase().includes(query))
 
-  if (isLoading) {
-    return <div>Loading permissions...</div>
-  }
+      if (objectMatches) {
+        // If object matches, include all actions
+        filtered[object] = actions
+      } else if (matchingActions.length > 0) {
+        // If any action matches, include only matching actions
+        filtered[object] = matchingActions
+      }
+    })
+
+    return filtered
+  }, [groupedPermissions, searchQuery])
 
   return (
     <div className="space-y-4">
-      {/* Changes Summary */}
-      {hasChanges && (
-        <div className="rounded-lg animate-slide-down border px-4 py-2 bg-muted/50">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-base">Pending Changes</h4>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCancel}
-                disabled={createPermission.isPending || deletePermission.isPending}>
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleSave}
-                disabled={createPermission.isPending || deletePermission.isPending}>
-                {createPermission.isPending || deletePermission.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>Save Changes</>
-                )}
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-2 text-sm">
-            {changes.added.length > 0 && (
-              <div>
-                <span className="font-medium text-green-600 dark:text-green-400">Added:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {changes.added.map((key) => (
-                    <Badge key={key} variant="outline" className="bg-green-50 dark:bg-green-950">
-                      + {formatPermissionKey(key)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            {changes.removed.length > 0 && (
-              <div>
-                <span className="font-medium text-red-600 dark:text-red-400">Removed:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {changes.removed.map((key) => (
-                    <Badge key={key} variant="outline" className="bg-red-50 dark:bg-red-950">
-                      - {formatPermissionKey(key)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Permission Cards */}
-      <div className="grid grid-cols-4 gap-4 animate-slide-up">
-        {permissions.map((permission) => {
-          return (
-            <PermissionCard
-              key={permission}
-              object={permission}
-              isChecked={hasAllPermissions(permission)}
-              hasPermission={hasPermission}
-              onPermissionChange={handlePermissionChange}
-              onAllPermissionsChange={handleAllPermissionsChange}
-              changes={changes}
-            />
-          )
-        })}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h2 className="text-2xl font-bold">Permissions</h2>
+        <Badge variant="outline" className="font-mono">
+          {rolePermissions.length} total permissions
+        </Badge>
       </div>
+
+      {rolePermissions.length === 0 ? (
+        <EmptyContent
+          image="/images/empty-roles.png"
+          title="No permissions found"
+          description="This role does not have any permissions."
+        />
+      ) : (
+        <>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            />
+            <input
+              type="text"
+              placeholder="Search permissions by resource or action..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-search pl-9!"
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Object.entries(filteredPermissions).length > 0 ? (
+              Object.entries(filteredPermissions).map(([object, actions]) => (
+                <Card key={object} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-2 px-4 pt-4">
+                    <CardTitle className="text-sm font-semibold font-mono">{object}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {actions.map((action) => (
+                        <Badge
+                          key={action}
+                          variant="secondary"
+                          className="text-xs font-medium py-0.5 px-2">
+                          {action}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                No permissions found matching &quot;{searchQuery}&quot;
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }
