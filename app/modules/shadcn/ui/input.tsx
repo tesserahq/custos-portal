@@ -3,12 +3,10 @@ import * as React from 'react'
 import { cn } from '@shadcn/lib/utils'
 import { Button } from './button'
 import { Eye, EyeOff } from 'lucide-react'
-import { useFormField } from './form'
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
   ({ className, type, ...props }, ref) => {
     const [fieldType, setFieldType] = React.useState<string>(type || 'text')
-    const { error, formItemId } = useFormField()
 
     return (
       <div className="relative w-full">
@@ -21,10 +19,8 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
             text-base transition-all duration-100 file:border-0 file:bg-transparent file:text-sm
             file:font-medium placeholder:opacity-50 focus-visible:ring-2 focus-visible:ring-offset-2
             focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm`,
-            error && 'border-destructive focus-visible:ring-destructive hover:border-destructive',
             className
           )}
-          id={formItemId}
           ref={ref}
           {...props}
         />
