@@ -67,7 +67,7 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
 
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="border-t-destructive max-w-md border-t-4">
+        <DialogContent className="border-t-destructive max-w-xl border-t-4">
           <DialogHeader className="flex flex-col items-center">
             <div
               className="bg-destructive -mt-16 flex h-16 w-16 items-center justify-center
@@ -83,7 +83,9 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationHandle, DeleteConfirmati
                   text-black">
                 {config.title}
               </h1>
-              <p className="dark:text-secondary-foreground mt-3 text-center text-base text-black">
+              <p
+                className="dark:text-secondary-foreground max-w-sm overflow-hidden mt-3 text-center
+                  text-base text-black">
                 {config.description}
               </p>
             </div>

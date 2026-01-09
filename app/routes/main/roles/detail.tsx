@@ -4,29 +4,35 @@ import { useApp } from '@/context/AppContext'
 import { Button } from '@shadcn/ui/button'
 import { Card, CardHeader, CardContent } from '@/modules/shadcn/ui/card'
 import { Popover, PopoverTrigger, PopoverContent } from '@/modules/shadcn/ui/popover'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/modules/shadcn/ui/tabs'
 import { Edit, Trash2, EllipsisVertical } from 'lucide-react'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { format } from 'date-fns'
 import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
 import { PermissionSections } from '@/components/permissions/sections'
+import { ServiceAccountMemberships, BindServiceAccountDialog } from '@/components/service-accounts'
+import NewButton from '@/components/new-button/new-button'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
+  const identiesApiUrl = process.env.IDENTIES_API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv, id: params.id }
+  return { apiUrl, nodeEnv, id: params.id, identiesApiUrl }
 }
 
 export default function RoleDetail() {
-  const { apiUrl, nodeEnv, id } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, id, identiesApiUrl } = useLoaderData<typeof loader>()
   const params = useParams()
   const { token } = useApp()
   const navigate = useNavigate()
   const deleteConfirmationRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const [isBindDialogOpen, setIsBindDialogOpen] = useState(false)
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
+  const identiesApiConfig = { apiUrl: identiesApiUrl!, token: token!, nodeEnv: nodeEnv }
 
   const { data: role, isLoading, error } = useRole(config, id)
   const { data: rolePermissions = [], isLoading: isLoadingPermissions } = useRolePermissions(
@@ -131,7 +137,42 @@ export default function RoleDetail() {
         </CardContent>
       </Card>
 
-      <PermissionSections rolePermissions={rolePermissions} />
+      <Card>
+        <CardContent className="pt-6">
+          <Tabs defaultValue="permissions" className="w-full">
+            <TabsList className="mb-5">
+              <TabsTrigger value="permissions">Permissions</TabsTrigger>
+              <TabsTrigger value="memberships">Memberships</TabsTrigger>
+            </TabsList>
+            <TabsContent value="permissions">
+              <PermissionSections rolePermissions={rolePermissions} />
+            </TabsContent>
+            <TabsContent value="memberships">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Memberships</h2>
+                  <NewButton
+                    label="Bind Service Account"
+                    onClick={() => setIsBindDialogOpen(true)}
+                    size="sm"
+                  />
+                </div>
+                <ServiceAccountMemberships config={config} roleId={id} />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <BindServiceAccountDialog
+        open={isBindDialogOpen}
+        onOpenChange={setIsBindDialogOpen}
+        custosApiUrl={apiUrl!}
+        identiesApiUrl={identiesApiUrl!}
+        nodeEnv={nodeEnv}
+        roleId={id}
+      />
+
       <DeleteConfirmation ref={deleteConfirmationRef} />
     </div>
   )
