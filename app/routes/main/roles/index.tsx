@@ -227,7 +227,7 @@ export default function RolesIndex() {
   }
 
   return (
-    <div className="animate-slide-up h-full">
+    <div className="animate-slide-up h-full p-3 max-w-screen-2xl mx-auto">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Roles</h1>
         <NewButton label="New Role" onClick={() => navigate('/roles/new')} disabled={isLoading} />
@@ -265,7 +265,7 @@ export default function RolesIndex() {
               {isLoadingPermissions ? (
                 <AppPreloader className="min-h-[200px]" />
               ) : (
-                <PermissionSections rolePermissions={rolePermissions} showTitle={false} />
+                <PermissionSections rolePermissions={rolePermissions} />
               )}
             </>
           )}

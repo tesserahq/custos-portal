@@ -1,5 +1,6 @@
 @config '../../tailwind.config.ts';
 @import 'tailwindcss';
+@source '../../node_modules/tessera-ui/src/**/*.{js,jsx,ts,tsx}';
 
 html,
 body {
@@ -192,7 +193,7 @@ nav.header .header-container {
 
 /* Main content */
 .main-content {
-  @apply bg-background mt-[65px] px-3 pt-6 pb-3 transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] lg:pr-8 lg:pl-11 print:m-0;
+  @apply bg-background mt-[61px] transition-[width,margin-left,margin-right,padding-left,padding-right] duration-200 ease-in md:ml-[var(--main-sidebar-width)] print:m-0;
 }
 
 .has-min-sidebar .main-content {

@@ -6,10 +6,9 @@ import { useMemo, useState } from 'react'
 
 interface PermissionSectionsProps {
   rolePermissions: Array<{ object: string; action: string }>
-  showTitle?: boolean
 }
 
-export function PermissionSections({ rolePermissions, showTitle = true }: PermissionSectionsProps) {
+export function PermissionSections({ rolePermissions }: PermissionSectionsProps) {
   const [searchQuery, setSearchQuery] = useState('')
 
   // Group permissions by object
@@ -58,13 +57,6 @@ export function PermissionSections({ rolePermissions, showTitle = true }: Permis
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h2 className="text-xl font-bold">{showTitle && 'Permissions'}</h2>
-        <Badge variant="outline" className="font-mono">
-          {rolePermissions.length} total permissions
-        </Badge>
-      </div>
-
       {rolePermissions.length === 0 ? (
         <EmptyContent
           image="/images/empty-roles.png"
