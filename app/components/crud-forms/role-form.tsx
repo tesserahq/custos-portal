@@ -81,38 +81,40 @@ export function RoleForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Role
   }
 
   return (
-    <Form
-      schema={roleFormSchema}
-      defaultValues={defaultValues}
-      onSubmit={handleSubmit}
-      mode="onChange"
-      reValidateMode="onChange">
-      <FormLayout title={title}>
-        <RoleFormFields />
+    <div className="pt-5">
+      <Form
+        schema={roleFormSchema}
+        defaultValues={defaultValues}
+        onSubmit={handleSubmit}
+        mode="onChange"
+        reValidateMode="onChange">
+        <FormLayout title={title}>
+          <RoleFormFields />
 
-        <Form.Textarea
-          field="description"
-          label="Description"
-          placeholder="Enter role description"
-          rows={4}
-        />
+          <Form.Textarea
+            field="description"
+            label="Description"
+            placeholder="Enter role description"
+            rows={4}
+          />
 
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/roles')}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              submitLabel
-            )}
-          </Button>
-        </div>
-      </FormLayout>
-    </Form>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => navigate('/roles')}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                submitLabel
+              )}
+            </Button>
+          </div>
+        </FormLayout>
+      </Form>
+    </div>
   )
 }

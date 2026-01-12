@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext'
 import '@/styles/sidebar.css'
 import { cn } from '@shadcn/lib/utils'
 import { KeyRound } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLoaderData } from 'react-router'
 
 export function loader() {
@@ -27,6 +27,27 @@ export default function Layout() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { isLoading } = useApp()
   const [isExpanded, setIsExpanded] = useState(true)
+
+  const apps = useMemo(() => {
+    return [
+      {
+        name: 'quore',
+        link: `${quoreHostUrl}?autologin=true`,
+      },
+      {
+        name: 'looply',
+        link: `${looplyHostUrl}?autologin=true`,
+      },
+      {
+        name: 'vaulta',
+        link: `${vaultaHostUrl}?autologin=true`,
+      },
+      {
+        name: 'identies',
+        link: `${identiesHostUrl}?autologin=true`,
+      },
+    ]
+  }, [quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl])
 
   const menuItems: IMenuItemProps[] = [
     {
@@ -75,16 +96,11 @@ export default function Layout() {
           hostUrl={hostUrl}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
-          appHostUrls={{
-            quoreHostUrl: quoreHostUrl!,
-            looplyHostUrl: looplyHostUrl!,
-            vaultaHostUrl: vaultaHostUrl!,
-            identiesHostUrl: identiesHostUrl!,
-          }}
+          apps={apps}
         />
 
         <main className="main-content w-full">
-          <div className="mx-auto h-full w-full max-w-screen-2xl">
+          <div className="mx-auto h-full w-full">
             <Outlet />
           </div>
         </main>

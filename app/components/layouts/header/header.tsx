@@ -8,13 +8,12 @@ import { cn } from '@shadcn/lib/utils'
 import { Link, useSubmit } from 'react-router'
 import { Button } from '@shadcn/ui/button'
 import { PanelLeft } from 'lucide-react'
-import AppMenus, { IAppMenusProps } from '@/components/app-menus/app-menus'
-// import NewResourceShortcut from '@/components/new-resources-shortcut/new-resources-shortcut'
+import { AppMenu, AppMenuProps } from 'tessera-ui'
 
 interface IHeaderProps {
   apiUrl: string
   nodeEnv: NodeENVType
-  appHostUrls: IAppMenusProps
+  apps: AppMenuProps[]
   action?: React.ReactNode
   withSidebar?: boolean
   isExpanded?: boolean
@@ -22,13 +21,7 @@ interface IHeaderProps {
   hostUrl?: string
 }
 
-export function Header({
-  isExpanded,
-  setIsExpanded,
-  action,
-  withSidebar,
-  appHostUrls,
-}: IHeaderProps) {
+export function Header({ isExpanded, setIsExpanded, action, withSidebar, apps }: IHeaderProps) {
   const requestInfo = useRequestInfo()
   const submit = useSubmit()
   const onSetTheme = (theme: string) => {
@@ -83,7 +76,7 @@ export function Header({
 
             {/* Right content */}
             <div className="flex items-center space-x-1 lg:space-x-5">
-              <AppMenus appHostUrls={appHostUrls} />
+              <AppMenu apps={apps || []} />
               {/* <NewResourceShortcut /> */}
               <ProfileMenu
                 selectedTheme={requestInfo.userPrefs.theme || 'system'}
