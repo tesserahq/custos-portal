@@ -66,19 +66,6 @@ export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMemb
         },
       },
       {
-        accessorKey: 'user.username',
-        header: 'Username',
-        size: 200,
-        cell: ({ row }) => {
-          const username = row.original.user.username
-          return (
-            <div className="max-w-[150px] truncate" title={username}>
-              {username || '-'}
-            </div>
-          )
-        },
-      },
-      {
         accessorKey: 'user.first_name',
         header: 'Name',
         size: 250,
@@ -94,7 +81,7 @@ export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMemb
       },
       {
         accessorKey: 'created_at',
-        header: 'Bound At',
+        header: 'Created At',
         size: 200,
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string
