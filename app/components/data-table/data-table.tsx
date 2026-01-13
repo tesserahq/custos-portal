@@ -19,6 +19,7 @@ export function DataTable<TData, TValue>({
   hasFilter = false,
   table: tableProp,
   onTableReady,
+  paginationScope,
 }: DataTableProps<TData, TValue>) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   const [skeletonRowCount, setSkeletonRowCount] = useState<number>(10)
@@ -139,7 +140,7 @@ export function DataTable<TData, TValue>({
       </div>
       {meta?.size && (
         <div className="border-input bg-card dark:bg-navy-800 sticky bottom-0 z-10 border-t p-3">
-          <Pagination meta={meta} />
+          <Pagination meta={meta} scope={paginationScope} />
         </div>
       )}
     </div>

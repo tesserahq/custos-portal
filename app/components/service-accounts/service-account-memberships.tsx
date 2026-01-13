@@ -85,7 +85,7 @@ export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMemb
         size: 200,
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string
-          return createdAt && <DateTime date={createdAt} />
+          return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy" />
         },
       },
       {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { IQueryConfig } from '@/resources/queries'
+import { IQueryConfig, IQueryParams } from '@/resources/queries'
 import {
   createRolePermission,
   deletePermission,
@@ -49,6 +49,7 @@ export const permissionQueryKeys = {
 export function useRolePermissions(
   config: IQueryConfig,
   roleId: string,
+  params: IQueryParams,
   options?: {
     enabled?: boolean
     staleTime?: number
@@ -62,7 +63,7 @@ export function useRolePermissions(
     queryKey: permissionQueryKeys.rolePermissions(roleId),
     queryFn: async () => {
       try {
-        return await getRolePermissions(config, roleId)
+        return await getRolePermissions(config, roleId, params)
       } catch (error: any) {
         throw new QueryError(error)
       }

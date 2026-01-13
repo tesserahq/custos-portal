@@ -364,3 +364,11 @@ input[type='time']::-webkit-calendar-picker-indicator {
 .input-search {
   @apply border-input ring-offset-background file:text-foreground placeholder:text-muted-foreground hover:border-primary focus-visible:ring-primary dark:text-primary-foreground dark:bg-background flex h-10 w-full rounded border bg-white px-3 py-2 text-base transition-all duration-100 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:opacity-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
 }
+
+.page-title {
+  @apply dark:text-foreground text-[1.85rem] font-bold;
+}
+
+.page-content {
+  @apply animate-slide-up mx-auto max-w-screen-2xl p-6 lg:p-8;
+}

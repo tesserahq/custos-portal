@@ -3,7 +3,7 @@ import { useApp } from '@/context/AppContext'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { ServiceAccountMemberships, BindServiceAccountDialog } from '@/components/service-accounts'
 import NewButton from '@/components/new-button/new-button'
-import { PageContent } from '@/components/page-content'
+import { PageContent } from '@/components/detail-content'
 import { useState } from 'react'
 
 export async function loader({ params }: { params: { id: string } }) {

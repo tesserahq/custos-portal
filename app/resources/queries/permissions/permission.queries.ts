@@ -1,6 +1,7 @@
 import { fetchApi } from '@/libraries/fetch'
+import { IPaging } from '@/resources/types'
 import { CreatePermissionData, PermissionType, UpdateRoleData } from './permission.type'
-import { IQueryConfig } from '..'
+import { IQueryConfig, IQueryParams } from '..'
 
 const PERMISSIONS_ENDPOINT = '/permissions'
 const ROLES_ENDPOINT = '/roles'
@@ -10,9 +11,11 @@ const ROLES_ENDPOINT = '/roles'
  */
 export async function getRolePermissions(
   config: IQueryConfig,
-  roleId: string
-): Promise<PermissionType[]> {
+  roleId: string,
+  params: IQueryParams
+): Promise<IPaging<PermissionType>> {
   const { apiUrl, token, nodeEnv } = config
+  const { page, size } = params
 
   const permissions = await fetchApi(
     `${apiUrl}${ROLES_ENDPOINT}/${roleId}${PERMISSIONS_ENDPOINT}`,
@@ -20,10 +23,11 @@ export async function getRolePermissions(
     nodeEnv,
     {
       method: 'GET',
+      pagination: { page, size },
     }
   )
 
-  return permissions as PermissionType[]
+  return permissions as IPaging<PermissionType>
 }
 
 /**

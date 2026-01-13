@@ -15,25 +15,31 @@ const sanitizePage = (page: number) => {
 type CanonicalDefaults = {
   defaultSize?: number
   defaultPage?: number
+  scope?: string
 }
 
 export type CanonicalPaginationResult = Response | { size: number; page: number }
 
 export function ensureCanonicalPagination(
   request: Request,
-  { defaultSize = 100, defaultPage = 1 }: CanonicalDefaults = {}
+  { defaultSize = 100, defaultPage = 1, scope = '' }: CanonicalDefaults = {}
 ): CanonicalPaginationResult {
   const url = new URL(request.url)
+  const prefix = scope ? `${scope}:` : ''
 
-  const rawSize = Number(url.searchParams.get('size') || String(defaultSize))
-  const rawPage = Number(url.searchParams.get('page') || String(defaultPage))
+  const rawSize = Number(
+    url.searchParams.get(`${prefix}size`) || url.searchParams.get('size') || String(defaultSize)
+  )
+  const rawPage = Number(
+    url.searchParams.get(`${prefix}page`) || url.searchParams.get('page') || String(defaultPage)
+  )
 
   const size = clampPageSize(rawSize)
   const page = sanitizePage(rawPage)
 
   if (String(size) !== String(rawSize) || String(page) !== String(rawPage)) {
-    url.searchParams.set('size', String(size))
-    url.searchParams.set('page', String(page))
+    url.searchParams.set(`${prefix}size`, String(size))
+    url.searchParams.set(`${prefix}page`, String(page))
     return Response.redirect(url.toString(), 302)
   }
 
