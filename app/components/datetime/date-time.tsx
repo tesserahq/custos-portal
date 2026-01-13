@@ -3,7 +3,7 @@ import { formatInTimeZone, toZonedTime } from 'date-fns-tz'
 import { enUS } from 'date-fns/locale'
 
 const DEFAULT_TIMEZONE = 'America/New_York'
-const DEFAULT_FORMAT = 'dd/MM/yyyy'
+const DEFAULT_FORMAT = 'E, MM MMM yyyy, p zzzz'
 
 /**
  * Gets the timezone abbreviation (e.g., "PST", "EST")
@@ -43,7 +43,20 @@ export function formatDateTime(
   if (!timezone) {
     timezoneValue = getBrowserTimezone()
   }
-  const parsedDate = typeof date === 'string' ? new Date(date) : date
+
+  // If date is a string without timezone indicator, add 'Z' to indicate UTC
+  let dateToParse = date
+  if (typeof date === 'string') {
+    const trimmedDate = date.trim()
+    // Check if it doesn't already end with 'z' or 'Z' (UTC indicator)
+    if (!/[zZ]$/.test(trimmedDate)) {
+      dateToParse = trimmedDate + 'Z'
+    } else {
+      dateToParse = trimmedDate
+    }
+  }
+
+  const parsedDate = typeof dateToParse === 'string' ? new Date(dateToParse) : dateToParse
   const zonedDate = toZonedTime(parsedDate, timezoneValue)
   const formattedDate = format(zonedDate, formatStr)
 

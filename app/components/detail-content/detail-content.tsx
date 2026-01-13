@@ -7,7 +7,7 @@ interface IPageContentProps {
   children: React.ReactNode
 }
 
-export function PageContent({ title, actions, children }: IPageContentProps) {
+export function DetailContent({ title, actions, children }: IPageContentProps) {
   return (
     <div className="animate-slide-up">
       <Card>

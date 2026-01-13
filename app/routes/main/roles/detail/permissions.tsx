@@ -1,44 +1,55 @@
-import { useLoaderData } from 'react-router'
-import { useApp } from '@/context/AppContext'
+import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
+import { PermissionContent } from '@/components/permissions/content'
+import { useApp } from '@/context/AppContext'
 import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
-import { PermissionSections } from '@/components/permissions/sections'
-import { PageContent } from '@/components/page-content'
+import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { useState } from 'react'
-import { Badge } from '@/modules/shadcn/ui/badge'
+import { useLoaderData } from 'react-router'
 
-export async function loader({ params }: { params: { id: string } }) {
+export async function loader({ request, params }: { request: Request; params: { id: string } }) {
+  const pagination = ensureCanonicalPagination(request, { defaultSize: 25, defaultPage: 1 })
+
+  if (pagination instanceof Response) {
+    return pagination
+  }
+
   const apiUrl = process.env.API_URL
   const identiesApiUrl = process.env.IDENTIES_API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv, id: params.id, identiesApiUrl }
+  return { apiUrl, nodeEnv, id: params.id, identiesApiUrl, pagination }
 }
 
 export default function RolePermissions() {
-  const { apiUrl, nodeEnv, id } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, id, pagination } = useLoaderData<typeof loader>()
+  const { page, size } = pagination
   const { token } = useApp()
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
 
-  const { data: rolePermissions = [], isLoading: isLoadingPermissions } = useRolePermissions(
-    config,
-    id
-  )
+  const {
+    data: rolePermissions,
+    isLoading: isLoadingPermissions,
+    error,
+  } = useRolePermissions(config, id, {
+    page,
+    size,
+  })
 
   if (isLoadingPermissions || !token) {
     return <AppPreloader className="min-h-screen" />
   }
 
-  return (
-    <PageContent
-      title="Permissions"
-      actions={
-        <Badge variant="outline" className="font-mono">
-          {rolePermissions.length} total permissions
-        </Badge>
-      }>
-      <PermissionSections rolePermissions={rolePermissions} />
-    </PageContent>
-  )
+  if (error) {
+    return (
+      <EmptyContent
+        title="Error"
+        description={error.message}
+        image="/images/empty-permissions.png"
+      />
+    )
+  }
+
+  return <PermissionContent permissions={rolePermissions!} />
 }

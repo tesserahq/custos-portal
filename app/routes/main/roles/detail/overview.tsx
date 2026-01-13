@@ -1,6 +1,6 @@
 import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { PageContent } from '@/components/page-content'
+import { DetailContent } from '@/components/detail-content'
 import { useApp } from '@/context/AppContext'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRole } from '@/resources/hooks/roles/use-role'
@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useRef } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
+import DateTime from '@/components/datetime/date-time'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
@@ -54,7 +55,7 @@ export default function RoleDetail() {
 
   return (
     <div className="animate-slide-up space-y-5">
-      <PageContent
+      <DetailContent
         title={role?.name || ''}
         actions={
           <Popover>
@@ -97,14 +98,18 @@ export default function RoleDetail() {
           </div>
           <div className="d-item">
             <dt className="d-label">Created At</dt>
-            <dd className="d-content">{format(new Date(role?.created_at + 'z'), 'PPPpp')}</dd>
+            <dd className="d-content">
+              {role?.created_at && <DateTime date={role?.created_at} />}
+            </dd>
           </div>
           <div className="d-item">
             <dt className="d-label">Updated At</dt>
-            <dd className="d-content">{format(new Date(role?.updated_at + 'z'), 'PPPpp')}</dd>
+            <dd className="d-content">
+              {role?.updated_at && <DateTime date={role?.updated_at} />}
+            </dd>
           </div>
         </div>
-      </PageContent>
+      </DetailContent>
 
       <DeleteConfirmation ref={deleteConfirmationRef} />
     </div>

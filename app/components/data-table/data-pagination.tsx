@@ -12,8 +12,8 @@ import { useNavigate } from 'react-router'
 import { Button } from '@shadcn/ui/button'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
-export const Pagination = ({ meta }: { meta: IPagingInfo }) => {
-  const { getScopedSearch } = useScopedParams()
+export const Pagination = ({ meta, scope }: { meta: IPagingInfo; scope?: string }) => {
+  const { getScopedSearch } = useScopedParams(scope)
   const navigate = useNavigate()
   const { pages, page, total, size } = meta
 

@@ -4,24 +4,28 @@ import DeleteConfirmation from '@/components/delete-confirmation/delete-confirma
 import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import NewButton from '@/components/new-button/new-button'
-import { useApp } from '@/context/AppContext'
-import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/modules/shadcn/ui/dialog'
-import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
-import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
-import { PermissionSections } from '@/components/permissions/sections'
+import { PermissionContent } from '@/components/permissions/content'
 import { ServiceAccountMemberships } from '@/components/service-accounts'
+import { useApp } from '@/context/AppContext'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/modules/shadcn/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
+import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
+import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
 import { RoleType } from '@/resources/queries/roles/role.type'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
 import { useScopedParams } from '@/utils/helpers/params.helper'
 import { Button } from '@shadcn/ui/button'
 import { ColumnDef } from '@tanstack/react-table'
-import { Edit, EllipsisVertical, EyeIcon, Trash2, Shield, Users } from 'lucide-react'
+import { Edit, EllipsisVertical, EyeIcon, Shield, Trash2, Users } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { Link, useLoaderData, useNavigate } from 'react-router'
 
 export async function loader({ request }: { request: Request }) {
-  const pagination = ensureCanonicalPagination(request, { defaultSize: 25, defaultPage: 1 })
+  const pagination = ensureCanonicalPagination(request, {
+    defaultSize: 25,
+    defaultPage: 1,
+    scope: 'roles',
+  })
 
   if (pagination instanceof Response) {
     return pagination
@@ -38,25 +42,31 @@ export default function RolesIndex() {
   const { token, isLoading: isLoadingAuth } = useApp()
   const navigate = useNavigate()
   const deleteConfirmationRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
-  const { getParam } = useScopedParams()
+  const { getParam: getRolesParam } = useScopedParams('roles')
+  const { getParam: getPermissionsParam } = useScopedParams('permissions')
   const [permissionsRoleId, setPermissionsRoleId] = useState<string | null>(null)
   const [membershipsRoleId, setMembershipsRoleId] = useState<string | null>(null)
 
-  // Get pagination params from URL
-  const page = Number(getParam('page') || pagination.page)
-  const size = Number(getParam('size') || pagination.size)
+  // Get pagination params from URL with scoped params
+  const rolesPage = Number(getRolesParam('page') || pagination.page)
+  const rolesSize = Number(getRolesParam('size') || pagination.size)
+
+  // Permissions pagination defaults
+  const permissionsPage = Number(getPermissionsParam('page') || 1)
+  const permissionsSize = Number(getPermissionsParam('size') || 25)
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
 
   const { data, isLoading, error } = useRoles(
     config,
-    { page, size },
+    { page: rolesPage, size: rolesSize },
     { enabled: !!token && !isLoadingAuth }
   )
 
-  const { data: rolePermissions = [], isLoading: isLoadingPermissions } = useRolePermissions(
+  const { data: rolePermissions, isLoading: isLoadingPermissions } = useRolePermissions(
     config,
     permissionsRoleId || '',
+    { page: permissionsPage, size: permissionsSize },
     { enabled: !!permissionsRoleId && !!token }
   )
 
@@ -118,7 +128,7 @@ export default function RolesIndex() {
         size: 100,
         cell: ({ row }) => {
           const date = row.getValue('created_at') as string
-          return <DateTime date={date} />
+          return <DateTime date={date} formatStr="dd/MM/yyyy" />
         },
       },
       {
@@ -127,7 +137,7 @@ export default function RolesIndex() {
         size: 100,
         cell: ({ row }) => {
           const date = row.getValue('updated_at') as string
-          return <DateTime date={date} />
+          return <DateTime date={date} formatStr="dd/MM/yyyy" />
         },
       },
       {
@@ -227,7 +237,7 @@ export default function RolesIndex() {
   }
 
   return (
-    <div className="animate-slide-up h-full p-3 max-w-screen-2xl mx-auto">
+    <div className="h-full page-content">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="page-title">Roles</h1>
         <NewButton label="New Role" onClick={() => navigate('/roles/new')} disabled={isLoading} />
@@ -247,6 +257,7 @@ export default function RolesIndex() {
             : undefined
         }
         isLoading={isLoading}
+        paginationScope="roles"
       />
 
       <DeleteConfirmation ref={deleteConfirmationRef} />
@@ -254,20 +265,14 @@ export default function RolesIndex() {
       <Dialog
         open={!!permissionsRoleId}
         onOpenChange={(open) => !open && setPermissionsRoleId(null)}>
-        <DialogContent className="max-w-[80%]! w-full max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-screen-xl! w-full max-h-[90vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle>
-              {data?.items.find((r) => r.id === permissionsRoleId)?.name || 'Role'} - Permissions
-            </DialogTitle>
+            <DialogTitle></DialogTitle>
           </DialogHeader>
-          {permissionsRoleId && (
-            <>
-              {isLoadingPermissions ? (
-                <AppPreloader className="min-h-[200px]" />
-              ) : (
-                <PermissionSections rolePermissions={rolePermissions} />
-              )}
-            </>
+          {isLoadingPermissions ? (
+            <AppPreloader className="min-h-[200px]" />
+          ) : (
+            <PermissionContent permissions={rolePermissions!} />
           )}
         </DialogContent>
       </Dialog>
