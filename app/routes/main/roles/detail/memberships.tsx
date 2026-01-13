@@ -3,7 +3,7 @@ import { useApp } from '@/context/AppContext'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { ServiceAccountMemberships, BindServiceAccountDialog } from '@/components/service-accounts'
 import NewButton from '@/components/new-button/new-button'
-import { PageContent } from '@/components/detail-content'
+import { DetailContent } from '@/components/detail-content'
 import { useState } from 'react'
 
 export async function loader({ params }: { params: { id: string } }) {
@@ -27,7 +27,7 @@ export default function RoleMemberships() {
 
   return (
     <>
-      <PageContent
+      <DetailContent
         title="Memberships"
         actions={
           <NewButton
@@ -37,7 +37,7 @@ export default function RoleMemberships() {
           />
         }>
         <ServiceAccountMemberships config={config} roleId={id} />
-      </PageContent>
+      </DetailContent>
 
       <BindServiceAccountDialog
         open={isBindDialogOpen}
