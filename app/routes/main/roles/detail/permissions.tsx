@@ -1,11 +1,10 @@
-import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { PermissionContent } from '@/components/permissions/content'
 import { useApp } from '@/context/AppContext'
 import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
-import { useState } from 'react'
 import { useLoaderData } from 'react-router'
+import { EmptyContent } from 'tessera-ui'
 
 export async function loader({ request, params }: { request: Request; params: { id: string } }) {
   const pagination = ensureCanonicalPagination(request, { defaultSize: 25, defaultPage: 1 })
