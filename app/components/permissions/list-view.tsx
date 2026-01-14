@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { EllipsisVertical, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { DataTable } from '../data-table'
-import DateTime from '../datetime/date-time'
+import { DateTime } from 'tessera-ui/components'
 import { IPaging } from '@/resources'
 
 export default function PermissionListView({

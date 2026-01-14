@@ -1,4 +1,3 @@
-import EmptyContent from '@/components/empty-content/empty-content'
 import PermissionGridView from './grid-view'
 import PermissionListView from './list-view'
 import { PermissionType } from '@/resources/queries/permissions/permission.type'
@@ -10,6 +9,7 @@ import { LayoutGrid, LayoutList } from 'lucide-react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { IPaging } from '@/resources/types'
+import { EmptyContent } from 'tessera-ui/components'
 
 interface PermissionContentProps {
   permissions: IPaging<PermissionType>

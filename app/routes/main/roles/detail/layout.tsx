@@ -1,4 +1,3 @@
-import EmptyContent from '@/components/empty-content/empty-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
 import { Button } from '@/modules/shadcn/ui/button'
@@ -6,7 +5,8 @@ import { useRole } from '@/resources/hooks/roles/use-role'
 import { FileText, KeyRound, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useLocation, useNavigate, useParams } from 'react-router'
-import { BreadcrumbItemData, DetailItemsProps, Layout } from 'tessera-ui'
+import { EmptyContent } from 'tessera-ui/components'
+import { Layout, DetailItemsProps, BreadcrumbItemData } from 'tessera-ui/layouts'
 
 export function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL

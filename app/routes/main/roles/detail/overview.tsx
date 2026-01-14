@@ -1,15 +1,16 @@
-import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { DetailContent } from '@/components/detail-content'
 import { useApp } from '@/context/AppContext'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRole } from '@/resources/hooks/roles/use-role'
 import { Button } from '@shadcn/ui/button'
-import { format } from 'date-fns'
 import { Edit, EllipsisVertical, Trash2 } from 'lucide-react'
 import { useRef } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router'
-import DateTime from '@/components/datetime/date-time'
+import { DateTime } from 'tessera-ui/components'
+import DeleteConfirmation, {
+  type DeleteConfirmationHandle,
+} from 'tessera-ui/components/delete-confirmation'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
@@ -24,7 +25,7 @@ export default function RoleDetail() {
   const params = useParams()
   const { token } = useApp()
   const navigate = useNavigate()
-  const deleteConfirmationRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
 

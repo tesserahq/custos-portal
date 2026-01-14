@@ -2,9 +2,9 @@ import { useLoaderData } from 'react-router'
 import { useApp } from '@/context/AppContext'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { ServiceAccountMemberships, BindServiceAccountDialog } from '@/components/service-accounts'
-import NewButton from '@/components/new-button/new-button'
 import { DetailContent } from '@/components/detail-content'
 import { useState } from 'react'
+import { NewButton } from 'tessera-ui/components'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL

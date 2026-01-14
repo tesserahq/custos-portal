@@ -1,8 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { DataTable } from '@/components/data-table'
-import { DateTime } from '@/components/datetime'
-import DeleteConfirmation from '@/components/delete-confirmation/delete-confirmation'
-import EmptyContent from '@/components/empty-content/empty-content'
+import { DateTime } from 'tessera-ui/components'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import {
   useRoleMemberships,
@@ -15,6 +13,10 @@ import { Trash2 } from 'lucide-react'
 import { Button } from '@shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { EllipsisVertical } from 'lucide-react'
+import { EmptyContent } from 'tessera-ui/components'
+import DeleteConfirmation, {
+  type DeleteConfirmationHandle,
+} from 'tessera-ui/components/delete-confirmation'
 
 interface ServiceAccountMembershipsProps {
   config: IQueryConfig
@@ -23,7 +25,7 @@ interface ServiceAccountMembershipsProps {
 
 export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMembershipsProps) {
   const size = 100 // Fetch more items to ensure we get all service accounts
-  const deleteConfirmationRef = useRef<React.ComponentRef<typeof DeleteConfirmation>>(null)
+  const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
 
   const { data, isLoading, error } = useRoleMemberships(config, roleId, { page: 1, size })
 
