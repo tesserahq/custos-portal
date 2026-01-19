@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Pagination } from '../data-table/data-pagination'
+import { AppPreloader } from '../loader/pre-loader'
+import { PermissionContentProps } from './type'
 
 export default function PermissionGridView({
   permissions,
-}: {
-  permissions: IPaging<PermissionType>
-}) {
+  isLoading,
+  onChangePagination,
+}: PermissionContentProps) {
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   // Group permissions by object
@@ -56,6 +58,10 @@ export default function PermissionGridView({
 
     return filtered
   }, [groupedPermissions, searchQuery])
+
+  if (isLoading) {
+    return <AppPreloader className="h-[400px]" />
+  }
 
   return (
     <div className="space-y-4">
@@ -108,7 +114,7 @@ export default function PermissionGridView({
               total: permissions.total,
               pages: permissions.pages,
             }}
-            scope="permissions"
+            callback={onChangePagination}
           />
         )}
       </>

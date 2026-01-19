@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable } from '@/components/data-table'
 import { DateTime } from 'tessera-ui/components'
 import { AppPreloader } from '@/components/loader/pre-loader'
@@ -24,16 +24,27 @@ interface ServiceAccountMembershipsProps {
 }
 
 export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMembershipsProps) {
-  const size = 100 // Fetch more items to ensure we get all service accounts
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
+  const [pagination, setPagination] = useState<{ page: number; size: number }>({
+    page: 1,
+    size: 25,
+  })
 
-  const { data, isLoading, error } = useRoleMemberships(config, roleId, { page: 1, size })
+  const { data, isLoading, error, isFetching, refetch } = useRoleMemberships(
+    config,
+    roleId,
+    pagination
+  )
 
   const { mutateAsync: deleteMembership } = useDeleteMembership(config, {
     onSuccess: () => {
       deleteConfirmationRef.current?.close()
     },
   })
+
+  useEffect(() => {
+    refetch()
+  }, [pagination])
 
   // Filter to show only service account memberships
   const serviceAccountMemberships = useMemo(() => {
@@ -150,8 +161,9 @@ export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMemb
         columns={columns}
         data={serviceAccountMemberships}
         meta={meta}
-        isLoading={isLoading}
+        isLoading={isFetching}
         fixed={false}
+        callbackPagination={setPagination}
         empty={
           <EmptyContent
             title="No service accounts bound"

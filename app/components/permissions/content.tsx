@@ -1,6 +1,5 @@
 import PermissionGridView from './grid-view'
 import PermissionListView from './list-view'
-import { PermissionType } from '@/resources/queries/permissions/permission.type'
 import { DetailContent } from '../detail-content/detail-content'
 import { Badge } from '@/modules/shadcn/ui/badge'
 import { ButtonGroup } from '@/modules/shadcn/ui/button-group'
@@ -8,17 +7,32 @@ import { Button } from '@/modules/shadcn/ui/button'
 import { LayoutGrid, LayoutList } from 'lucide-react'
 import { useEffect } from 'react'
 import { useState } from 'react'
-import { IPaging } from '@/resources/types'
 import { EmptyContent } from 'tessera-ui/components'
+import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
+import { IQueryConfig } from '@/resources/queries'
+import { AppPreloader } from '../loader/pre-loader'
 
-interface PermissionContentProps {
-  permissions: IPaging<PermissionType>
-  isLoading?: boolean
+interface PermissionsProps {
+  config: IQueryConfig
+  roleId: string
 }
 
-export function PermissionContent({ permissions }: PermissionContentProps) {
+export function PermissionContent({ config, roleId }: PermissionsProps) {
   const viewModeKey = 'permissionViewMode'
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+
+  const [pagination, setPagination] = useState<{ page: number; size: number }>({
+    page: 1,
+    size: 25,
+  })
+
+  const {
+    data: permissions,
+    isLoading,
+    isFetching,
+    refetch: refetchPermissions,
+    error,
+  } = useRolePermissions(config, roleId, pagination)
 
   const handleSaveViewMode = (viewMode: 'grid' | 'list') => {
     setViewMode(viewMode)
@@ -26,7 +40,7 @@ export function PermissionContent({ permissions }: PermissionContentProps) {
   }
 
   useEffect(() => {
-    if (permissions?.items?.length > 0) {
+    if (permissions) {
       // Check current view mode
       const savedViewMode = localStorage.getItem(viewModeKey)
 
@@ -36,12 +50,20 @@ export function PermissionContent({ permissions }: PermissionContentProps) {
     }
   }, [permissions])
 
-  if (permissions?.items?.length === 0) {
+  useEffect(() => {
+    refetchPermissions()
+  }, [pagination])
+
+  if (isLoading) {
+    return <AppPreloader className="min-h-[400px]" />
+  }
+
+  if (permissions === undefined || error) {
     return (
       <EmptyContent
-        image="/images/empty-roles.png"
-        title="No permissions found"
-        description="This role does not have any permissions."
+        title={permissions?.items.length === 0 ? 'Empty Permissions' : 'Error'}
+        description={error?.message || 'Permissions not found'}
+        image="/images/empty-permissions.png"
       />
     )
   }
@@ -71,8 +93,20 @@ export function PermissionContent({ permissions }: PermissionContentProps) {
           </ButtonGroup>
         </div>
       }>
-      {viewMode === 'grid' && <PermissionGridView permissions={permissions} />}
-      {viewMode === 'list' && <PermissionListView permissions={permissions} />}
+      {viewMode === 'grid' && (
+        <PermissionGridView
+          permissions={permissions}
+          onChangePagination={setPagination}
+          isLoading={isFetching}
+        />
+      )}
+      {viewMode === 'list' && (
+        <PermissionListView
+          permissions={permissions}
+          onChangePagination={setPagination}
+          isLoading={isFetching}
+        />
+      )}
     </DetailContent>
   )
 }
