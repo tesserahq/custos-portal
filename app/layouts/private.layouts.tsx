@@ -17,13 +17,31 @@ export function loader() {
   const looplyHostUrl = process.env.LOOPLY_HOST_URL
   const vaultaHostUrl = process.env.VAULTA_HOST_URL
   const identiesHostUrl = process.env.IDENTIES_HOST_URL
+  const orchaHostUrl = process.env.ORCHA_HOST_URL
 
-  return { apiUrl, hostUrl, nodeEnv, quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl }
+  return {
+    apiUrl,
+    hostUrl,
+    nodeEnv,
+    quoreHostUrl,
+    looplyHostUrl,
+    vaultaHostUrl,
+    identiesHostUrl,
+    orchaHostUrl,
+  }
 }
 
 export default function Layout() {
-  const { apiUrl, hostUrl, nodeEnv, quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl } =
-    useLoaderData<typeof loader>()
+  const {
+    apiUrl,
+    hostUrl,
+    nodeEnv,
+    quoreHostUrl,
+    looplyHostUrl,
+    vaultaHostUrl,
+    identiesHostUrl,
+    orchaHostUrl,
+  } = useLoaderData<typeof loader>()
   const containerRef = useRef<HTMLDivElement>(null)
   const { isLoading } = useApp()
   const [isExpanded, setIsExpanded] = useState(true)
@@ -46,8 +64,12 @@ export default function Layout() {
         name: 'identies',
         link: `${identiesHostUrl}?autologin=true`,
       },
+      {
+        name: 'orcha',
+        link: `${orchaHostUrl}?autologin=true`,
+      },
     ]
-  }, [quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl])
+  }, [quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl, orchaHostUrl])
 
   const menuItems: IMenuItemProps[] = [
     {

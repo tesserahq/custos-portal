@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable } from '@/components/data-table'
-import { DateTime } from 'tessera-ui/components'
+import { DateTime, NewButton } from 'tessera-ui/components'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import {
   useRoleMemberships,
@@ -17,24 +17,34 @@ import { EmptyContent } from 'tessera-ui/components'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,
 } from 'tessera-ui/components/delete-confirmation'
+import { DetailContent } from '../detail-content'
+import { NewMembershipDialog } from './new-membership-dialog'
 
 interface ServiceAccountMembershipsProps {
+  identiesApiUrl: string
   config: IQueryConfig
   roleId: string
 }
 
-export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMembershipsProps) {
+export function MembershipContent({
+  identiesApiUrl,
+  config,
+  roleId,
+}: ServiceAccountMembershipsProps) {
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
+  const [isBindDialogOpen, setIsBindDialogOpen] = useState(false)
   const [pagination, setPagination] = useState<{ page: number; size: number }>({
     page: 1,
     size: 25,
   })
 
-  const { data, isLoading, error, isFetching, refetch } = useRoleMemberships(
-    config,
-    roleId,
-    pagination
-  )
+  const {
+    data: memberhips,
+    isLoading,
+    error,
+    isFetching,
+    refetch: refetchMemberships,
+  } = useRoleMemberships(config, roleId, pagination)
 
   const { mutateAsync: deleteMembership } = useDeleteMembership(config, {
     onSuccess: () => {
@@ -43,14 +53,14 @@ export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMemb
   })
 
   useEffect(() => {
-    refetch()
+    refetchMemberships()
   }, [pagination])
 
   // Filter to show only service account memberships
   const serviceAccountMemberships = useMemo(() => {
-    if (!data?.items) return []
-    return data.items
-  }, [data])
+    if (!memberhips?.items) return []
+    return memberhips.items
+  }, [memberhips])
 
   const handleDelete = (membership: MembershipType) => {
     deleteConfirmationRef.current?.open({
@@ -133,46 +143,68 @@ export function ServiceAccountMemberships({ config, roleId }: ServiceAccountMemb
   )
 
   if (isLoading) {
-    return <AppPreloader className="min-h-[200px]" />
+    return <AppPreloader className="min-h-[400px]" />
   }
 
-  if (error) {
+  if (memberhips === undefined || error) {
     return (
-      <div className="flex h-[200px] items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground">Failed to load service account memberships</p>
-        </div>
-      </div>
+      <EmptyContent
+        title="Failed to get memberhips"
+        description={error?.message}
+        image="/images/empty-memberships.png"
+      />
     )
   }
 
   // Don't show pagination for filtered results since filtering is done client-side
   // If needed, we could implement server-side filtering in the future
   const meta = {
-    page: data?.page || 1,
-    pages: data?.pages || 1,
-    size: data?.size || 100,
-    total: data?.total || 0,
+    page: memberhips?.page || 1,
+    pages: memberhips?.pages || 1,
+    size: memberhips?.size || 100,
+    total: memberhips?.total || 0,
   }
 
   return (
-    <>
-      <DataTable
-        columns={columns}
-        data={serviceAccountMemberships}
-        meta={meta}
-        isLoading={isFetching}
-        fixed={false}
-        callbackPagination={setPagination}
-        empty={
-          <EmptyContent
-            title="No service accounts bound"
-            description="No service accounts are currently bound to this role."
-            image="/images/empty-role.png"
-          />
-        }
-      />
+    <DetailContent
+      title="Memberships"
+      actions={
+        <NewButton
+          label="Bind Service Account"
+          onClick={() => setIsBindDialogOpen(true)}
+          size="sm"
+        />
+      }>
+      {memberhips?.items.length === 0 ? (
+        <EmptyContent
+          title="No Memberships Found"
+          description="Get started by creating your first permission."
+          image="/images/empty-permissions.png">
+          <Button onClick={() => setIsBindDialogOpen(true)} variant="black">
+            Start Creating
+          </Button>
+        </EmptyContent>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={serviceAccountMemberships}
+          meta={meta}
+          isLoading={isFetching}
+          fixed={false}
+          callbackPagination={setPagination}
+        />
+      )}
+
       <DeleteConfirmation ref={deleteConfirmationRef} />
-    </>
+
+      <NewMembershipDialog
+        roleId={roleId}
+        open={isBindDialogOpen}
+        onOpenChange={setIsBindDialogOpen}
+        custosApiUrl={config.apiUrl}
+        identiesApiUrl={identiesApiUrl!}
+        nodeEnv={config.nodeEnv}
+      />
+    </DetailContent>
   )
 }

@@ -42,14 +42,14 @@ export function useServiceAccounts(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: serviceAccountQueryKeys.list(config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await getServiceAccounts(config, params)
       } catch (error: any) {
         throw new QueryError(error)
