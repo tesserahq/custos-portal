@@ -110,6 +110,7 @@ export function useCreateRolePermission(
   options?: {
     onSuccess?: (data: PermissionType) => void
     onError?: (error: Error) => void
+    showToast?: boolean
   }
 ) {
   const queryClient = useQueryClient()
@@ -131,13 +132,17 @@ export function useCreateRolePermission(
       queryClient.invalidateQueries({
         queryKey: permissionQueryKeys.rolePermissions(variables.roleId),
       })
-      toast.success('Permission created successfully')
+      if (options?.showToast !== false) {
+        toast.success('Permission created successfully')
+      }
       options?.onSuccess?.(data)
     },
     onError: (error: Error) => {
-      toast.error('Failed to create permission', {
-        description: error.message,
-      })
+      if (options?.showToast !== false) {
+        toast.error('Failed to create permission', {
+          description: error.message,
+        })
+      }
       options?.onError?.(error)
     },
   })

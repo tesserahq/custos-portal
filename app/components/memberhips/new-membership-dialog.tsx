@@ -17,7 +17,7 @@ import { useApp } from '@/context/AppContext'
 import { Label } from '@/modules/shadcn/ui/label'
 import { Input } from '@/modules/shadcn/ui/input'
 
-interface BindServiceAccountDialogProps {
+interface NewMembershipDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   roleId: string
@@ -26,18 +26,18 @@ interface BindServiceAccountDialogProps {
   nodeEnv: NodeENVType
 }
 
-export function BindServiceAccountDialog({
+export function NewMembershipDialog({
   open,
   onOpenChange,
   custosApiUrl,
   identiesApiUrl,
   nodeEnv,
   roleId,
-}: BindServiceAccountDialogProps) {
+}: NewMembershipDialogProps) {
   const { token } = useApp()
   const [selectedServiceAccountId, setSelectedServiceAccountId] = useState<string>('')
   const [domain, setDomain] = useState<string>('')
-  const [page, setPage] = useState(1)
+  const [page, _] = useState(1)
   const size = 100
 
   const { data: serviceAccountsData, isLoading: isLoadingServiceAccounts } = useServiceAccounts(

@@ -6,7 +6,7 @@ import {
   PaginationEllipsis,
 } from '@shadcn/ui/pagination'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shadcn/ui/select'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useScopedParams } from '@/utils/helpers/params.helper'
 import { useNavigate } from 'react-router'
 import { Button } from '@shadcn/ui/button'
@@ -77,6 +77,10 @@ export const Pagination = ({ meta, scope, callback }: IProps) => {
       navigate(getScopedSearch({ page: value }))
     }
   }
+
+  useEffect(() => {
+    setPagination(meta)
+  }, [meta])
 
   return (
     <div className="flex w-full items-center justify-between">

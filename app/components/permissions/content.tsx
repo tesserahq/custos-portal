@@ -1,16 +1,16 @@
-import PermissionGridView from './grid-view'
-import PermissionListView from './list-view'
-import { DetailContent } from '../detail-content/detail-content'
 import { Badge } from '@/modules/shadcn/ui/badge'
-import { ButtonGroup } from '@/modules/shadcn/ui/button-group'
 import { Button } from '@/modules/shadcn/ui/button'
-import { LayoutGrid, LayoutList } from 'lucide-react'
-import { useEffect } from 'react'
-import { useState } from 'react'
-import { EmptyContent } from 'tessera-ui/components'
+import { ButtonGroup } from '@/modules/shadcn/ui/button-group'
 import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
 import { IQueryConfig } from '@/resources/queries'
+import { LayoutGrid, LayoutList } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { EmptyContent, NewButton } from 'tessera-ui/components'
+import { DetailContent } from '../detail-content/detail-content'
 import { AppPreloader } from '../loader/pre-loader'
+import PermissionGridView from './grid-view'
+import PermissionListView from './list-view'
+import { NewPermissionDialog } from './new-permission-dialog'
 
 interface PermissionsProps {
   config: IQueryConfig
@@ -20,6 +20,7 @@ interface PermissionsProps {
 export function PermissionContent({ config, roleId }: PermissionsProps) {
   const viewModeKey = 'permissionViewMode'
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
 
   const [pagination, setPagination] = useState<{ page: number; size: number }>({
     page: 1,
@@ -61,8 +62,8 @@ export function PermissionContent({ config, roleId }: PermissionsProps) {
   if (permissions === undefined || error) {
     return (
       <EmptyContent
-        title={permissions?.items.length === 0 ? 'Empty Permissions' : 'Error'}
-        description={error?.message || 'Permissions not found'}
+        title="Failed to get roles"
+        description={error?.message}
         image="/images/empty-permissions.png"
       />
     )
@@ -76,6 +77,8 @@ export function PermissionContent({ config, roleId }: PermissionsProps) {
           <Badge variant="outline" className="font-mono">
             {permissions?.items?.length} total permissions
           </Badge>
+
+          <NewButton label="New Permission" onClick={() => setOpenDialog(true)} />
 
           <ButtonGroup>
             <Button
@@ -93,20 +96,41 @@ export function PermissionContent({ config, roleId }: PermissionsProps) {
           </ButtonGroup>
         </div>
       }>
-      {viewMode === 'grid' && (
-        <PermissionGridView
-          permissions={permissions}
-          onChangePagination={setPagination}
-          isLoading={isFetching}
-        />
+      {permissions.items.length === 0 ? (
+        <EmptyContent
+          title="No Permissions Found"
+          description="Get started by creating your first permission."
+          image="/images/empty-permissions.png">
+          <Button onClick={() => setOpenDialog(true)} variant="black">
+            Start Creating
+          </Button>
+        </EmptyContent>
+      ) : (
+        <>
+          {viewMode === 'grid' && (
+            <PermissionGridView
+              permissions={permissions}
+              onChangePagination={setPagination}
+              isLoading={isFetching}
+            />
+          )}
+          {viewMode === 'list' && (
+            <PermissionListView
+              permissions={permissions}
+              onChangePagination={setPagination}
+              isLoading={isFetching}
+            />
+          )}
+        </>
       )}
-      {viewMode === 'list' && (
-        <PermissionListView
-          permissions={permissions}
-          onChangePagination={setPagination}
-          isLoading={isFetching}
-        />
-      )}
+
+      <NewPermissionDialog
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+        roleId={roleId}
+        apiUrl={config.apiUrl}
+        nodeEnv={config.nodeEnv}
+      />
     </DetailContent>
   )
 }

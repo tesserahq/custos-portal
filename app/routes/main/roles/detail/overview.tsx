@@ -20,7 +20,7 @@ export async function loader({ params }: { params: { id: string } }) {
   return { apiUrl, nodeEnv, id: params.id, identiesApiUrl }
 }
 
-export default function RoleDetail() {
+export default function RoleOverview() {
   const { apiUrl, nodeEnv, id } = useLoaderData<typeof loader>()
   const params = useParams()
   const { token } = useApp()

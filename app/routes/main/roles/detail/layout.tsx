@@ -15,7 +15,7 @@ export function loader({ params }: { params: { id: string } }) {
   return { apiUrl, nodeEnv, id: params.id }
 }
 
-export default function DetailLayout() {
+export default function RoleDetailLayout() {
   const { apiUrl, nodeEnv } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const params = useParams()

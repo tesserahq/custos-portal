@@ -1,7 +1,7 @@
 import { DataTable } from '@/components/data-table'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { PermissionContent } from '@/components/permissions/content'
-import { ServiceAccountMemberships } from '@/components/service-accounts'
+import { MembershipContent } from '@/components/memberhips'
 import { useApp } from '@/context/AppContext'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/modules/shadcn/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
@@ -30,12 +30,18 @@ export async function loader({ request }: { request: Request }) {
 
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
+  const identiesApiUrl = process.env.IDENTIES_API_URL
 
-  return { apiUrl, nodeEnv, pagination }
+  return { apiUrl, nodeEnv, pagination, identiesApiUrl }
 }
 
 export default function RolesIndex() {
-  const { apiUrl, nodeEnv, pagination: rolePagination } = useLoaderData<typeof loader>()
+  const {
+    apiUrl,
+    nodeEnv,
+    identiesApiUrl,
+    pagination: rolePagination,
+  } = useLoaderData<typeof loader>()
   const { token, isLoading: isLoadingAuth } = useApp()
   const navigate = useNavigate()
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
@@ -194,12 +200,11 @@ export default function RolesIndex() {
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">Error loading roles</h2>
-          <p className="mt-2 text-muted-foreground">{(error as Error).message}</p>
-        </div>
-      </div>
+      <EmptyContent
+        image="/images/empty-roles.png"
+        title="Failed to get permissions"
+        description={error.message}
+      />
     )
   }
 
@@ -258,7 +263,11 @@ export default function RolesIndex() {
           </DialogHeader>
           {membershipsRoleId && (
             <div className="space-y-4">
-              <ServiceAccountMemberships config={config} roleId={membershipsRoleId} />
+              <MembershipContent
+                identiesApiUrl={identiesApiUrl!}
+                config={config}
+                roleId={membershipsRoleId}
+              />
             </div>
           )}
         </DialogContent>
