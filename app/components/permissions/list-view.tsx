@@ -6,13 +6,13 @@ import { EllipsisVertical, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { DataTable } from '../data-table'
 import { DateTime } from 'tessera-ui/components'
-import { IPaging } from '@/resources'
+import { PermissionContentProps } from './type'
 
 export default function PermissionListView({
   permissions,
-}: {
-  permissions: IPaging<PermissionType>
-}) {
+  isLoading,
+  onChangePagination,
+}: PermissionContentProps) {
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   const filteredPermissions = useMemo(() => {
@@ -104,6 +104,8 @@ export default function PermissionListView({
       <DataTable
         columns={columns}
         data={filteredPermissions || []}
+        isLoading={isLoading}
+        fixed={false}
         meta={
           permissions
             ? {
@@ -114,7 +116,7 @@ export default function PermissionListView({
               }
             : undefined
         }
-        paginationScope="permissions"
+        callbackPagination={onChangePagination}
       />
     </div>
   )

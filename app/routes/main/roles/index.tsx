@@ -5,17 +5,15 @@ import { ServiceAccountMemberships } from '@/components/service-accounts'
 import { useApp } from '@/context/AppContext'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/modules/shadcn/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
-import { useRolePermissions } from '@/resources/hooks/permissions/use-permission'
 import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
 import { RoleType } from '@/resources/queries/roles/role.type'
 import { ensureCanonicalPagination } from '@/utils/helpers/pagination.helper'
-import { useScopedParams } from '@/utils/helpers/params.helper'
 import { Button } from '@shadcn/ui/button'
 import { ColumnDef } from '@tanstack/react-table'
 import { Edit, EllipsisVertical, EyeIcon, Shield, Trash2, Users } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { Link, useLoaderData, useNavigate } from 'react-router'
-import { DateTime, NewButton, EmptyContent } from 'tessera-ui/components'
+import { DateTime, EmptyContent, NewButton } from 'tessera-ui/components'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,
 } from 'tessera-ui/components/delete-confirmation'
@@ -24,7 +22,6 @@ export async function loader({ request }: { request: Request }) {
   const pagination = ensureCanonicalPagination(request, {
     defaultSize: 25,
     defaultPage: 1,
-    scope: 'roles',
   })
 
   if (pagination instanceof Response) {
@@ -38,36 +35,19 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export default function RolesIndex() {
-  const { apiUrl, nodeEnv, pagination } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, pagination: rolePagination } = useLoaderData<typeof loader>()
   const { token, isLoading: isLoadingAuth } = useApp()
   const navigate = useNavigate()
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
-  const { getParam: getRolesParam } = useScopedParams('roles')
-  const { getParam: getPermissionsParam } = useScopedParams('permissions')
   const [permissionsRoleId, setPermissionsRoleId] = useState<string | null>(null)
   const [membershipsRoleId, setMembershipsRoleId] = useState<string | null>(null)
-
-  // Get pagination params from URL with scoped params
-  const rolesPage = Number(getRolesParam('page') || pagination.page)
-  const rolesSize = Number(getRolesParam('size') || pagination.size)
-
-  // Permissions pagination defaults
-  const permissionsPage = Number(getPermissionsParam('page') || 1)
-  const permissionsSize = Number(getPermissionsParam('size') || 25)
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
 
   const { data, isLoading, error } = useRoles(
     config,
-    { page: rolesPage, size: rolesSize },
+    { page: rolePagination.page, size: rolePagination.size },
     { enabled: !!token && !isLoadingAuth }
-  )
-
-  const { data: rolePermissions, isLoading: isLoadingPermissions } = useRolePermissions(
-    config,
-    permissionsRoleId || '',
-    { page: permissionsPage, size: permissionsSize },
-    { enabled: !!permissionsRoleId && !!token }
   )
 
   const { mutateAsync: deleteRole } = useDeleteRole(config, {
@@ -236,6 +216,15 @@ export default function RolesIndex() {
     )
   }
 
+  const meta = data
+    ? {
+        page: data.page,
+        pages: data.pages,
+        size: data.size,
+        total: data.total,
+      }
+    : undefined
+
   return (
     <div className="h-full page-content">
       <div className="mb-5 flex items-center justify-between">
@@ -243,22 +232,7 @@ export default function RolesIndex() {
         <NewButton label="New Role" onClick={() => navigate('/roles/new')} disabled={isLoading} />
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data?.items || []}
-        meta={
-          data
-            ? {
-                page: data.page,
-                pages: data.pages,
-                size: data.size,
-                total: data.total,
-              }
-            : undefined
-        }
-        isLoading={isLoading}
-        paginationScope="roles"
-      />
+      <DataTable columns={columns} data={data?.items || []} meta={meta} isLoading={isLoading} />
 
       <DeleteConfirmation ref={deleteConfirmationRef} />
 
@@ -269,11 +243,7 @@ export default function RolesIndex() {
           <DialogHeader>
             <DialogTitle></DialogTitle>
           </DialogHeader>
-          {isLoadingPermissions ? (
-            <AppPreloader className="min-h-[200px]" />
-          ) : (
-            <PermissionContent permissions={rolePermissions!} />
-          )}
+          {permissionsRoleId && <PermissionContent config={config} roleId={permissionsRoleId} />}
         </DialogContent>
       </Dialog>
 
