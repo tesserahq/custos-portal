@@ -22,6 +22,16 @@ export default [
         route('memberships', 'routes/main/roles/detail/memberships.tsx'),
       ]),
     ]),
+
+    route('users', 'routes/main/users/layout.tsx', [
+      index('routes/main/users/index.tsx'),
+      route(':id', 'routes/main/users/detail/layout.tsx', [
+        index('routes/main/users/detail/index.tsx'),
+        route('overview', 'routes/main/users/detail/overview.tsx'),
+        route('memberships', 'routes/main/users/detail/memberships/index.tsx'),
+        route('memberships/:membershipId', 'routes/main/users/detail/memberships/detail.tsx'),
+      ]),
+    ]),
   ]),
 
   // Access Denied
