@@ -51,7 +51,7 @@ export function NewPermissionDialog({
     if (!resource || actions.length === 0) return
 
     const newResource = actions.map((action) => ({
-      object: resource,
+      object: 'custos.user',
       action,
     }))
 

@@ -4,7 +4,7 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import { useApp } from '@/context/AppContext'
 import '@/styles/sidebar.css'
 import { cn } from '@shadcn/lib/utils'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, Users } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLoaderData } from 'react-router'
 
@@ -76,6 +76,11 @@ export default function Layout() {
       title: 'Roles',
       path: `/roles`,
       icon: <KeyRound size={18} />,
+    },
+    {
+      title: 'Users',
+      path: '/users',
+      icon: <Users size={18} />,
     },
   ]
 

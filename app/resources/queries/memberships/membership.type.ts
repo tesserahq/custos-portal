@@ -2,21 +2,8 @@
  * Membership Type
  */
 
-export type MembershipUser = {
-  email: string
-  username: string
-  avatar_url: string
-  first_name: string
-  last_name: string
-  provider: string
-  confirmed_at: string
-  verified: boolean
-  verified_at: string
-  service_account: boolean
-  id: string
-  created_at: string
-  updated_at: string
-}
+import { RoleType } from '../roles/role.type'
+import { UserType } from '../users/user.type'
 
 export type MembershipType = {
   user_id: string
@@ -26,7 +13,8 @@ export type MembershipType = {
   id: string
   created_at: string
   updated_at: string
-  user: MembershipUser
+  user: UserType
+  role: RoleType
 }
 
 /**

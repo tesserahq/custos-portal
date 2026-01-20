@@ -1,0 +1,62 @@
+import { fetchApi } from '@/libraries/fetch'
+import { IPaging } from '@/resources/types'
+import { MembershipType } from '@/resources/queries/memberships/membership.type'
+import { IQueryConfig, IQueryParams } from '..'
+import { UserType } from './user.type'
+
+const USERS_ENDPOINT = '/users'
+
+/**
+ * Get paginated users
+ */
+export async function getUsers(
+  config: IQueryConfig,
+  params: IQueryParams
+): Promise<IPaging<UserType>> {
+  const { apiUrl, token, nodeEnv } = config
+  const { page, size } = params
+
+  const users = await fetchApi(`${apiUrl}${USERS_ENDPOINT}/`, token, nodeEnv, {
+    method: 'GET',
+    pagination: { page, size },
+  })
+
+  return users as IPaging<UserType>
+}
+
+/**
+ * Get a single user by ID
+ */
+export async function getUser(config: IQueryConfig, id: string): Promise<UserType> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const user = await fetchApi(`${apiUrl}${USERS_ENDPOINT}/${id}`, token, nodeEnv, {
+    method: 'GET',
+  })
+
+  return user as UserType
+}
+
+/**
+ * Get paginated memberships for a user
+ */
+export async function getUserMemberships(
+  config: IQueryConfig,
+  userId: string,
+  params: IQueryParams
+): Promise<IPaging<MembershipType>> {
+  const { apiUrl, token, nodeEnv } = config
+  const { page, size } = params
+
+  const memberships = await fetchApi(
+    `${apiUrl}${USERS_ENDPOINT}/${userId}/memberships`,
+    token,
+    nodeEnv,
+    {
+      method: 'GET',
+      pagination: { page, size },
+    }
+  )
+
+  return memberships as IPaging<MembershipType>
+}

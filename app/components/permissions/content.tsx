@@ -78,7 +78,11 @@ export function PermissionContent({ config, roleId }: PermissionsProps) {
             {permissions?.items?.length} total permissions
           </Badge>
 
-          <NewButton label="New Permission" onClick={() => setOpenDialog(true)} />
+          <NewButton
+            label="New Permission"
+            onClick={() => setOpenDialog(true)}
+            disabled={isLoading}
+          />
 
           <ButtonGroup>
             <Button
