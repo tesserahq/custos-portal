@@ -113,6 +113,7 @@ export function PermissionContent({ config, roleId }: PermissionsProps) {
         <>
           {viewMode === 'grid' && (
             <PermissionGridView
+              config={config}
               permissions={permissions}
               onChangePagination={setPagination}
               isLoading={isFetching}
@@ -120,6 +121,7 @@ export function PermissionContent({ config, roleId }: PermissionsProps) {
           )}
           {viewMode === 'list' && (
             <PermissionListView
+              config={config}
               permissions={permissions}
               onChangePagination={setPagination}
               isLoading={isFetching}
