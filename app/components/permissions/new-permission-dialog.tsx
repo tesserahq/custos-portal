@@ -45,13 +45,13 @@ export function NewPermissionDialog({
   const { mutateAsync: createRolePermission, isPending: isCreatingPermission } =
     useCreateRolePermission(config, { showToast: false })
 
-  const sanitizePermissionInput = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
+  const sanitizePermissionInput = (value: string) => value.replace(/[^a-zA-Z0-9._]/g, '')
 
   const handleSubmit = async () => {
     if (!resource || actions.length === 0) return
 
     const newResource = actions.map((action) => ({
-      object: 'custos.user',
+      object: resource,
       action,
     }))
 

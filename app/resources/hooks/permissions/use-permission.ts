@@ -197,6 +197,7 @@ export function useDeletePermission(
   options?: {
     onSuccess?: () => void
     onError?: (error: QueryError) => void
+    showToast?: boolean
   }
 ) {
   const queryClient = useQueryClient()
@@ -218,13 +219,17 @@ export function useDeletePermission(
       queryClient.removeQueries({ queryKey: permissionQueryKeys.detail(id) })
       // Invalidate all role permissions queries
       queryClient.invalidateQueries({ queryKey: permissionQueryKeys.all })
-      toast.success('Permission deleted successfully')
+      if (options?.showToast !== false) {
+        toast.success('Permission deleted successfully')
+      }
       options?.onSuccess?.()
     },
     onError: (error: Error) => {
-      toast.error('Failed to delete permission', {
-        description: error.message,
-      })
+      if (options?.showToast !== false) {
+        toast.error('Failed to delete permission', {
+          description: error.message,
+        })
+      }
       options?.onError?.(error)
     },
   })
