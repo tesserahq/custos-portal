@@ -108,7 +108,7 @@ export function MembershipContent({
         size: 200,
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string
-          return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy" />
+          return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy HH:mm" />
         },
       },
       {
@@ -169,11 +169,7 @@ export function MembershipContent({
     <DetailContent
       title="Memberships"
       actions={
-        <NewButton
-          label="Bind Service Account"
-          onClick={() => setIsBindDialogOpen(true)}
-          size="sm"
-        />
+        <NewButton label="New Membership" onClick={() => setIsBindDialogOpen(true)} size="sm" />
       }>
       {memberhips?.items.length === 0 ? (
         <EmptyContent

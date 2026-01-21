@@ -70,6 +70,7 @@ export interface ComboboxProps<T = unknown> {
   searchPlaceholder?: string
   emptyText?: string
   onChange?: (value: string | undefined, option?: ComboboxOption<T>) => void
+  onSearchChange?: (value: string) => void
   renderOption?: (option: ComboboxOption<T>) => React.ReactNode
   renderSelected?: (selectedOption?: ComboboxOption<T>) => React.ReactNode
   renderTrigger?: (selectedOption?: ComboboxOption<T>) => React.ReactNode
@@ -152,6 +153,7 @@ export function Combobox<T = unknown>({
   searchPlaceholder = 'Search...',
   emptyText = 'No options found.',
   onChange,
+  onSearchChange,
   renderOption,
   renderSelected,
   renderTrigger,
@@ -220,7 +222,13 @@ export function Combobox<T = unknown>({
         </PopoverTrigger>
         <PopoverContent className={cn('w-full p-0', !searchable && 'min-w-52')} align="start">
           <Command>
-            {searchable && <CommandInput placeholder={searchPlaceholder} disabled={disabled} />}
+            {searchable && (
+              <CommandInput
+                placeholder={searchPlaceholder}
+                disabled={disabled}
+                onValueChange={onSearchChange}
+              />
+            )}
             <CommandList>
               <CommandEmpty>{emptyText}</CommandEmpty>
               <CommandGroup>
