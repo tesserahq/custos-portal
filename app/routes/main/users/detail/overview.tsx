@@ -27,7 +27,7 @@ export default function UserOverview() {
 
   return (
     <div className="animate-slide-up space-y-5">
-      <DetailContent title={user?.email || user?.username || ''}>
+      <DetailContent title={user?.email || ''}>
         <div className="d-list">
           <div className="d-item">
             <dt className="d-label">Email</dt>
@@ -38,10 +38,6 @@ export default function UserOverview() {
             <dd className="d-content">
               {`${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'N/A'}
             </dd>
-          </div>
-          <div className="d-item">
-            <dt className="d-label">Username</dt>
-            <dd className="d-content">{user?.username || 'N/A'}</dd>
           </div>
           <div className="d-item">
             <dt className="d-label">Provider</dt>

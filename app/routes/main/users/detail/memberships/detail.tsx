@@ -3,6 +3,12 @@ import { AppPreloader } from '@/components/loader/pre-loader'
 import { PermissionContent } from '@/components/permissions/content'
 import { useApp } from '@/context/AppContext'
 import { Button } from '@/modules/shadcn/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/modules/shadcn/ui/tooltip'
 import { useMembership } from '@/resources/hooks/memberships/use-membership'
 import { Link, useLoaderData, useNavigate } from 'react-router'
 import { DateTime, EmptyContent } from 'tessera-ui/components'
@@ -71,7 +77,18 @@ export default function UserMembershipDetail() {
           </div>
           <div className="d-item">
             <dt className="d-label">Domain</dt>
-            <dd className="d-content">{membership.domain || 'N/A'}</dd>
+            <dd className="d-content">
+              {membership.domain.length > 8 ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>{membership.domain.slice(0, 8) || 'N/A'}</TooltipTrigger>
+                    <TooltipContent align="start">{membership.domain}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <span>{membership.domain}</span>
+              )}
+            </dd>
           </div>
           <div className="d-item">
             <dt className="d-label">Created At</dt>

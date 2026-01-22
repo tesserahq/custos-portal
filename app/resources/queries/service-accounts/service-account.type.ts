@@ -5,7 +5,6 @@
 export type ServiceAccountType = {
   id: string
   email: string
-  username: string
   avatar_url: string
   avatar_asset_id: string
   first_name: string

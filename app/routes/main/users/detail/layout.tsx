@@ -50,7 +50,7 @@ export default function UserDetailLayout() {
 
     for (let index = 0; index < pathParts.length; index++) {
       const part = pathParts[index]
-      const label = part === params?.id ? user?.email || user?.username || '' : part
+      const label = part === params?.id ? user?.email || '' : part
 
       breadcrumbItems.push({
         label,

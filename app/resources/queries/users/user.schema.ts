@@ -10,7 +10,6 @@ import { z } from 'zod'
 export const userSchema = z.object({
   id: z.string(),
   email: z.string(),
-  username: z.string(),
   avatar_url: z.string(),
   avatar_asset_id: z.string(),
   first_name: z.string(),
