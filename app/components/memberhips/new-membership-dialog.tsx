@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -28,212 +28,234 @@ import { useUsers } from '@/resources/hooks/users/use-user'
 import { ChevronsUpDown } from 'lucide-react'
 import { Badge } from '@/modules/shadcn/ui/badge'
 
+export interface NewMembershipDialogHandle {
+  open: (params: { roleId: string; accountType: 'user' | 'service_account' }) => void
+  close: () => void
+}
+
 interface NewMembershipDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   roleId: string
   custosApiUrl: string
   identiesApiUrl: string
   nodeEnv: NodeENVType
+  accountType: 'user' | 'service_account'
 }
 
-export function NewMembershipDialog({
-  open,
-  onOpenChange,
-  custosApiUrl,
-  identiesApiUrl,
-  nodeEnv,
-  roleId,
-}: NewMembershipDialogProps) {
-  const { token } = useApp()
-  const [selectedServiceAccountId, setSelectedServiceAccountId] = useState<string>('')
-  const [domain, setDomain] = useState<string>('')
-  const [q, setQ] = useState<string>('')
-  const [debouncedQ, setDebouncedQ] = useState<string>('')
-  const [isComboboxOpen, setIsComboboxOpen] = useState(false)
-  const [page, _] = useState(1)
-  const size = 100
+export const NewMembershipDialog = forwardRef<NewMembershipDialogHandle, NewMembershipDialogProps>(
+  function NewMembershipDialog(
+    { custosApiUrl, identiesApiUrl, nodeEnv, roleId, accountType }: NewMembershipDialogProps,
+    ref
+  ) {
+    const { token } = useApp()
+    const [isOpen, setIsOpen] = useState(false)
+    const [currentRoleId, setCurrentRoleId] = useState(roleId)
+    const [currentAccountType, setCurrentAccountType] = useState(accountType)
+    const [selectedServiceAccountId, setSelectedServiceAccountId] = useState<string>('')
+    const [domain, setDomain] = useState<string>('')
+    const [q, setQ] = useState<string>('')
+    const [debouncedQ, setDebouncedQ] = useState<string>('')
+    const [isComboboxOpen, setIsComboboxOpen] = useState(false)
+    const [page, _] = useState(1)
+    const size = 100
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedQ(q.trim())
-    }, 300)
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        setDebouncedQ(q.trim())
+      }, 300)
 
-    return () => clearTimeout(timeout)
-  }, [q])
+      return () => clearTimeout(timeout)
+    }, [q])
 
-  const { data: serviceAccountsData, isLoading: isLoadingServiceAccounts } = useServiceAccounts(
-    { apiUrl: identiesApiUrl, token: token!, nodeEnv },
-    { page, size },
-    { enabled: open }
-  )
-  const { data: users, isLoading: isLoadingUsers } = useUsers(
-    { apiUrl: custosApiUrl, token: token!, nodeEnv },
-    { page, size, q: debouncedQ || undefined },
-    { enabled: open }
-  )
+    const isUserMode = currentAccountType === 'user'
 
-  const { mutateAsync: createMembership, isPending: isCreating } = useCreateRoleMembership(
-    { apiUrl: custosApiUrl, token: token!, nodeEnv },
-    roleId,
-    {
-      onSuccess: () => {
-        setSelectedServiceAccountId('')
-        onOpenChange(false)
-      },
-    }
-  )
+    const { data: serviceAccountsData, isLoading: isLoadingServiceAccounts } = useServiceAccounts(
+      { apiUrl: identiesApiUrl, token: token!, nodeEnv },
+      { page, size },
+      { enabled: isOpen && !isUserMode }
+    )
+    const { data: users, isLoading: isLoadingUsers } = useUsers(
+      { apiUrl: custosApiUrl, token: token!, nodeEnv },
+      { page, size, q: isUserMode ? debouncedQ || undefined : undefined },
+      { enabled: isOpen && isUserMode }
+    )
 
-  const handleSubmit = async () => {
-    if (!selectedServiceAccountId) return
-
-    await createMembership({
-      user_id: selectedServiceAccountId,
-      domain: domain || '*',
-    })
-  }
-
-  const combinedAccounts = useMemo(() => {
-    const items = [...(serviceAccountsData?.items || []), ...(users?.items || [])]
-    const unique = new Map<string, (typeof items)[number]>()
-    items.forEach((item) => {
-      if (!unique.has(item.id)) {
-        unique.set(item.id, item)
+    const { mutateAsync: createMembership, isPending: isCreating } = useCreateRoleMembership(
+      { apiUrl: custosApiUrl, token: token!, nodeEnv },
+      currentRoleId,
+      {
+        onSuccess: () => {
+          closeDialog()
+        },
       }
-    })
-    return Array.from(unique.values())
-  }, [serviceAccountsData?.items, users?.items])
+    )
 
-  const accountOptions = useMemo(
-    () =>
-      combinedAccounts.map((account) => {
-        const fullName = `${account.first_name || ''} ${account.last_name || ''}`.trim()
-        const searchValue = `${fullName} ${account.email || ''}`.trim()
+    const handleSubmit = async () => {
+      if (!selectedServiceAccountId) return
 
-        return {
-          id: account.id,
-          value: account.id,
-          label: fullName || account.email,
-          searchValue,
-          data: account,
-        }
+      await createMembership({
+        user_id: selectedServiceAccountId,
+        domain: domain || '*',
+      })
+    }
+
+    const selectedAccounts = useMemo(
+      () => (isUserMode ? users?.items || [] : serviceAccountsData?.items || []),
+      [isUserMode, users?.items, serviceAccountsData?.items]
+    )
+
+    const accountOptions = useMemo(
+      () =>
+        selectedAccounts.map((account) => {
+          const fullName = `${account.first_name || ''} ${account.last_name || ''}`.trim()
+          const searchValue = `${fullName} ${account.email || ''}`.trim()
+
+          return {
+            id: account.id,
+            value: account.id,
+            label: fullName || account.email,
+            searchValue,
+            data: account,
+          }
+        }),
+      [selectedAccounts]
+    )
+
+    const selectedOption = useMemo(
+      () => accountOptions.find((option) => option.value === selectedServiceAccountId),
+      [accountOptions, selectedServiceAccountId]
+    )
+
+    const isLoadingAccounts = isLoadingServiceAccounts || isLoadingUsers
+    const isInitialLoading = !debouncedQ && selectedAccounts.length === 0 && isLoadingAccounts
+    const isSearchingUsers = isUserMode && !!debouncedQ && isLoadingUsers
+
+    const closeDialog = () => {
+      setIsOpen(false)
+      setSelectedServiceAccountId('')
+      setDomain('')
+      setQ('')
+      setDebouncedQ('')
+      setIsComboboxOpen(false)
+    }
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        open: ({ roleId: nextRoleId, accountType: nextAccountType }) => {
+          setCurrentRoleId(nextRoleId)
+          setCurrentAccountType(nextAccountType)
+          setIsOpen(true)
+        },
+        close: closeDialog,
       }),
-    [combinedAccounts]
-  )
+      []
+    )
 
-  const selectedOption = useMemo(
-    () => accountOptions.find((option) => option.value === selectedServiceAccountId),
-    [accountOptions, selectedServiceAccountId]
-  )
+    return (
+      <Dialog open={isOpen} onOpenChange={(nextOpen) => !nextOpen && closeDialog()}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{isUserMode ? 'Add User' : 'Bind Service Account'}</DialogTitle>
+            <DialogDescription>
+              {isUserMode
+                ? 'Select a user to add to this role. The user will have all permissions associated with this role.'
+                : 'Select a service account to bind to this role. The service account will have all permissions associated with this role.'}
+            </DialogDescription>
+          </DialogHeader>
 
-  const isLoadingAccounts = isLoadingServiceAccounts || isLoadingUsers
-  const isInitialLoading = !debouncedQ && combinedAccounts.length === 0 && isLoadingAccounts
-  const isSearchingUsers = !!debouncedQ && isLoadingUsers
-
-  const onClose = () => {
-    if (onOpenChange) onOpenChange(false)
-
-    setSelectedServiceAccountId('')
-    setDomain('')
-    setQ('')
-    setDebouncedQ('')
-    setIsComboboxOpen(false)
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Add User</DialogTitle>
-          <DialogDescription>
-            Select a user to add to this role. The user will have all permissions associated with
-            this role.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              User <span className="text-xs text-red-600">*</span>
-            </Label>
-            <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={isComboboxOpen}
-                  disabled={isInitialLoading}
-                  className="w-full justify-between">
-                  {isInitialLoading ? (
-                    <span className="text-muted-foreground">Loading...</span>
-                  ) : selectedOption ? (
-                    <span>{selectedOption.data?.email || ''}</span>
-                  ) : (
-                    <span className="text-muted-foreground">Select user account</span>
-                  )}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
-                <Command shouldFilter={false}>
-                  <CommandInput placeholder="Search users..." value={q} onValueChange={setQ} />
-                  <CommandList className="w-[450px]">
-                    <CommandEmpty>
-                      <div>
-                        {isSearchingUsers ? 'Searching...' : 'No service accounts available'}
-                      </div>
-                    </CommandEmpty>
-                    {!isSearchingUsers && accountOptions.length > 0 && (
-                      <CommandGroup>
-                        {accountOptions.map((option) => (
-                          <CommandItem
-                            key={option.id}
-                            value={option.searchValue || option.label}
-                            onSelect={() => {
-                              setSelectedServiceAccountId(option.value)
-                              setIsComboboxOpen(false)
-                            }}
-                            className="hover:bg-muted cursor-pointer">
-                            <div className="flex flex-col items-start gap-1">
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium">{option.label}</span>
-                                {option.data.service_account && (
-                                  <Badge
-                                    variant="outline"
-                                    className="border border-green-500 text-green-600">
-                                    <span className="text-[10px]">Service Account</span>
-                                  </Badge>
-                                )}
-                              </div>
-                              <span className="text-muted-foreground text-xs">
-                                {option.data?.email || ''}
-                              </span>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                {isUserMode ? 'User' : 'Service Account'}{' '}
+                <span className="text-xs text-red-600">*</span>
+              </Label>
+              <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isComboboxOpen}
+                    disabled={isInitialLoading}
+                    className="w-full justify-between">
+                    {isInitialLoading ? (
+                      <span className="text-muted-foreground">Loading...</span>
+                    ) : selectedOption ? (
+                      <span>{selectedOption.data?.email || ''}</span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {isUserMode ? 'Select user account' : 'Select service account'}
+                      </span>
                     )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command shouldFilter={false}>
+                    {isUserMode && (
+                      <CommandInput placeholder="Search users..." value={q} onValueChange={setQ} />
+                    )}
+                    <CommandList className="w-[450px]">
+                      <CommandEmpty>
+                        <div>
+                          {isSearchingUsers
+                            ? 'Searching...'
+                            : isUserMode
+                              ? 'No users available'
+                              : 'No service accounts available'}
+                        </div>
+                      </CommandEmpty>
+                      {!isSearchingUsers && accountOptions.length > 0 && (
+                        <CommandGroup>
+                          {accountOptions.map((option) => (
+                            <CommandItem
+                              key={option.id}
+                              value={option.searchValue || option.label}
+                              onSelect={() => {
+                                setSelectedServiceAccountId(option.value)
+                                setIsComboboxOpen(false)
+                              }}
+                              className="hover:bg-muted cursor-pointer">
+                              <div className="flex flex-col items-start gap-1">
+                                <div className="flex items-center gap-1">
+                                  <span className="font-medium">{option.label}</span>
+                                  {!isUserMode && option.data.service_account && (
+                                    <Badge
+                                      variant="outline"
+                                      className="border border-green-500 text-green-600">
+                                      <span className="text-[10px]">Service Account</span>
+                                    </Badge>
+                                  )}
+                                </div>
+                                <span className="text-muted-foreground text-xs">
+                                  {option.data?.email || ''}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Domain</Label>
+              <Input value={domain} onChange={(e) => setDomain(e.target.value)} />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Domain</Label>
-            <Input value={domain} onChange={(e) => setDomain(e.target.value)} />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCreating}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!selectedServiceAccountId || isCreating}>
-            {isCreating ? 'Saving...' : 'Save'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDialog} disabled={isCreating}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={!selectedServiceAccountId || isCreating}>
+              {isCreating ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+)

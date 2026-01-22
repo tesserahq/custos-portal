@@ -1920,7 +1920,7 @@
 
     "tapable": ["tapable@2.3.0", "", {}, "sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg=="],
 
-    "tessera-ui": ["tessera-ui@github:tesserahq/tessera-ui#50c677a", { "dependencies": { "axios": "^1.10.0" }, "peerDependencies": { "class-variance-authority": "^0.7.1", "react": "^18.3.1", "react-dom": "^18.3.1", "react-router": "^6.0.0", "tailwindcss": "^4.1.11" } }, "tesserahq-tessera-ui-50c677a"],
+    "tessera-ui": ["tessera-ui@github:tesserahq/tessera-ui#fa66693", { "dependencies": { "axios": "^1.10.0" }, "peerDependencies": { "class-variance-authority": "^0.7.1", "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0", "react-router": "^6.0.0 || ^7.0.0", "tailwindcss": "^4.1.11" } }, "tesserahq-tessera-ui-fa66693"],
 
     "throttle-debounce": ["throttle-debounce@5.0.2", "", {}, "sha512-B71/4oyj61iNH0KeCamLuE2rmKuTO5byTOSVwECM5FA7TiAiAW+UqTKZ9ERueC4qvgSttUhdmq1mXC3kJqGX7A=="],
 
