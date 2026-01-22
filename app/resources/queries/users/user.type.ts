@@ -3,7 +3,6 @@
  */
 export type UserType = {
   email: string
-  username: string
   avatar_url: string
   first_name: string
   last_name: string

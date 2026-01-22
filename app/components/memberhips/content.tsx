@@ -202,7 +202,7 @@ export function MembershipContent({
         <EmptyContent
           title="No Memberships Found"
           description="Get started by creating your first permission."
-          image="/images/empty-permissions.png">
+          image="/images/empty-memberships.png">
           <Button
             onClick={() =>
               newMembershipDialogRef.current?.open({

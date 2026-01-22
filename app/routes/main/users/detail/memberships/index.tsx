@@ -76,37 +76,13 @@ export default function UserMembershipsIndex() {
   const columns = useMemo<ColumnDef<MembershipType>[]>(
     () => [
       {
-        accessorKey: 'user.email',
-        header: 'Email',
-        size: 240,
-        cell: ({ row }) => {
-          const user = row.original.user
-          return (
-            <Link to={`/users/${id}/memberships/${row.original.id}`} className="button-link">
-              <div className="max-w-[220px] truncate">{user.email || '-'}</div>
-            </Link>
-          )
-        },
-      },
-      {
-        accessorKey: 'user.first_name',
-        header: 'Name',
-        size: 240,
-        cell: ({ row }) => {
-          const user = row.original.user
-          const name = user.first_name + ' ' + user.last_name
-
-          return <div className="max-w-[220px] truncate">{name || '-'}</div>
-        },
-      },
-      {
         accessorKey: 'role.name',
         header: 'Role',
         size: 240,
         cell: ({ row }) => {
           const role = row.original.role
           return (
-            <Link to={`/roles/${role.id}`} className="button-link">
+            <Link to={`/users/${id}/memberships/${row.original.id}`} className="button-link">
               {role.name || 'N/A'}
             </Link>
           )
