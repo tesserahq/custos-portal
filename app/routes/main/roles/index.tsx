@@ -1,9 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { PermissionContent } from '@/components/permissions/content'
-import { MembershipContent } from '@/components/memberhips'
 import { useApp } from '@/context/AppContext'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/modules/shadcn/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
 import { RoleType } from '@/resources/queries/roles/role.type'
@@ -30,23 +27,15 @@ export async function loader({ request }: { request: Request }) {
 
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
-  const identiesApiUrl = process.env.IDENTIES_API_URL
 
-  return { apiUrl, nodeEnv, pagination, identiesApiUrl }
+  return { apiUrl, nodeEnv, pagination }
 }
 
 export default function RolesIndex() {
-  const {
-    apiUrl,
-    nodeEnv,
-    identiesApiUrl,
-    pagination: rolePagination,
-  } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, pagination: rolePagination } = useLoaderData<typeof loader>()
   const { token, isLoading: isLoadingAuth } = useApp()
   const navigate = useNavigate()
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
-  const [permissionsRoleId, setPermissionsRoleId] = useState<string | null>(null)
-  const [membershipsRoleId, setMembershipsRoleId] = useState<string | null>(null)
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
 
@@ -59,6 +48,9 @@ export default function RolesIndex() {
   const { mutateAsync: deleteRole } = useDeleteRole(config, {
     onSuccess: () => {
       deleteConfirmationRef.current?.close()
+    },
+    onError: () => {
+      deleteConfirmationRef?.current?.updateConfig({ isLoading: false })
     },
   })
 
@@ -150,19 +142,19 @@ export default function RolesIndex() {
                   className="flex w-full justify-start gap-2"
                   onClick={() => navigate(`/roles/${role.id}`)}>
                   <EyeIcon size={18} />
-                  <span>View</span>
+                  <span>Overview</span>
                 </Button>
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"
-                  onClick={() => setPermissionsRoleId(role.id)}>
+                  onClick={() => navigate(`/roles/${role.id}/permissions`)}>
                   <Shield size={18} />
                   <span>Permissions</span>
                 </Button>
                 <Button
                   variant="ghost"
                   className="flex w-full justify-start gap-2"
-                  onClick={() => setMembershipsRoleId(role.id)}>
+                  onClick={() => navigate(`/roles/${role.id}/memberships`)}>
                   <Users size={18} />
                   <span>Memberships</span>
                 </Button>
@@ -240,38 +232,6 @@ export default function RolesIndex() {
       <DataTable columns={columns} data={data?.items || []} meta={meta} isLoading={isLoading} />
 
       <DeleteConfirmation ref={deleteConfirmationRef} />
-
-      <Dialog
-        open={!!permissionsRoleId}
-        onOpenChange={(open) => !open && setPermissionsRoleId(null)}>
-        <DialogContent className="max-w-screen-xl! w-full max-h-[90vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle></DialogTitle>
-          </DialogHeader>
-          {permissionsRoleId && <PermissionContent config={config} roleId={permissionsRoleId} />}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={!!membershipsRoleId}
-        onOpenChange={(open) => !open && setMembershipsRoleId(null)}>
-        <DialogContent className="max-w-[80%]! w-full max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="mb-5">
-              {data?.items.find((r) => r.id === membershipsRoleId)?.name || 'Role'} - Memberships
-            </DialogTitle>
-          </DialogHeader>
-          {membershipsRoleId && (
-            <div className="space-y-4">
-              <MembershipContent
-                identiesApiUrl={identiesApiUrl!}
-                config={config}
-                roleId={membershipsRoleId}
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
