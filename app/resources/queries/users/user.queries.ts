@@ -14,11 +14,12 @@ export async function getUsers(
   params: IQueryParams
 ): Promise<IPaging<UserType>> {
   const { apiUrl, token, nodeEnv } = config
-  const { page, size } = params
+  const { page, size, q } = params
 
   const users = await fetchApi(`${apiUrl}${USERS_ENDPOINT}/`, token, nodeEnv, {
     method: 'GET',
     pagination: { page, size },
+    params: { q },
   })
 
   return users as IPaging<UserType>

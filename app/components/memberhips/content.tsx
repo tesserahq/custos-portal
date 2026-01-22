@@ -18,7 +18,7 @@ import DeleteConfirmation, {
   type DeleteConfirmationHandle,
 } from 'tessera-ui/components/delete-confirmation'
 import { DetailContent } from '../detail-content'
-import { NewMembershipDialog } from './new-membership-dialog'
+import { NewMembershipDialog, type NewMembershipDialogHandle } from './new-membership-dialog'
 
 interface ServiceAccountMembershipsProps {
   identiesApiUrl: string
@@ -32,7 +32,7 @@ export function MembershipContent({
   roleId,
 }: ServiceAccountMembershipsProps) {
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
-  const [isBindDialogOpen, setIsBindDialogOpen] = useState(false)
+  const newMembershipDialogRef = useRef<NewMembershipDialogHandle>(null)
   const [pagination, setPagination] = useState<{ page: number; size: number }>({
     page: 1,
     size: 25,
@@ -108,7 +108,7 @@ export function MembershipContent({
         size: 200,
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string
-          return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy" />
+          return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy HH:mm" />
         },
       },
       {
@@ -169,18 +169,45 @@ export function MembershipContent({
     <DetailContent
       title="Memberships"
       actions={
-        <NewButton
-          label="Bind Service Account"
-          onClick={() => setIsBindDialogOpen(true)}
-          size="sm"
-        />
+        <div className="flex items-center gap-2">
+          <NewButton
+            label="New Service Account"
+            title="Service Account"
+            variant="outline"
+            onClick={() =>
+              newMembershipDialogRef.current?.open({
+                roleId,
+                accountType: 'service_account',
+              })
+            }
+            size="sm"
+          />
+          <NewButton
+            label="New User"
+            title="User"
+            onClick={() =>
+              newMembershipDialogRef.current?.open({
+                roleId,
+                accountType: 'user',
+              })
+            }
+            size="sm"
+          />
+        </div>
       }>
       {memberhips?.items.length === 0 ? (
         <EmptyContent
           title="No Memberships Found"
           description="Get started by creating your first permission."
           image="/images/empty-permissions.png">
-          <Button onClick={() => setIsBindDialogOpen(true)} variant="black">
+          <Button
+            onClick={() =>
+              newMembershipDialogRef.current?.open({
+                roleId,
+                accountType: 'service_account',
+              })
+            }
+            variant="black">
             Start Creating
           </Button>
         </EmptyContent>
@@ -198,12 +225,12 @@ export function MembershipContent({
       <DeleteConfirmation ref={deleteConfirmationRef} />
 
       <NewMembershipDialog
+        ref={newMembershipDialogRef}
         roleId={roleId}
-        open={isBindDialogOpen}
-        onOpenChange={setIsBindDialogOpen}
         custosApiUrl={config.apiUrl}
         identiesApiUrl={identiesApiUrl!}
         nodeEnv={config.nodeEnv}
+        accountType="service_account"
       />
     </DetailContent>
   )

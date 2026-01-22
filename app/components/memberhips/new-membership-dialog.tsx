@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,15 @@ import {
   DialogTitle,
 } from '@/modules/shadcn/ui/dialog'
 import { Button } from '@shadcn/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/modules/shadcn/ui/select'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/modules/shadcn/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useServiceAccounts } from '@/resources/hooks/service-accounts/use-service-account'
 import { useCreateRoleMembership } from '@/resources/hooks/memberships/use-membership'
 import { AppPreloader } from '@/components/loader/pre-loader'
@@ -16,103 +24,220 @@ import { NodeENVType } from '@/libraries/fetch'
 import { useApp } from '@/context/AppContext'
 import { Label } from '@/modules/shadcn/ui/label'
 import { Input } from '@/modules/shadcn/ui/input'
+import { useUsers } from '@/resources/hooks/users/use-user'
+import { ChevronsUpDown } from 'lucide-react'
+import { Badge } from '@/modules/shadcn/ui/badge'
+
+export interface NewMembershipDialogHandle {
+  open: (params: { roleId: string; accountType: 'user' | 'service_account' }) => void
+  close: () => void
+}
 
 interface NewMembershipDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   roleId: string
   custosApiUrl: string
   identiesApiUrl: string
   nodeEnv: NodeENVType
+  accountType: 'user' | 'service_account'
 }
 
-export function NewMembershipDialog({
-  open,
-  onOpenChange,
-  custosApiUrl,
-  identiesApiUrl,
-  nodeEnv,
-  roleId,
-}: NewMembershipDialogProps) {
-  const { token } = useApp()
-  const [selectedServiceAccountId, setSelectedServiceAccountId] = useState<string>('')
-  const [domain, setDomain] = useState<string>('')
-  const [page, _] = useState(1)
-  const size = 100
+export const NewMembershipDialog = forwardRef<NewMembershipDialogHandle, NewMembershipDialogProps>(
+  function NewMembershipDialog(
+    { custosApiUrl, identiesApiUrl, nodeEnv, roleId, accountType }: NewMembershipDialogProps,
+    ref
+  ) {
+    const { token } = useApp()
+    const [isOpen, setIsOpen] = useState(false)
+    const [currentRoleId, setCurrentRoleId] = useState(roleId)
+    const [currentAccountType, setCurrentAccountType] = useState(accountType)
+    const [selectedServiceAccountId, setSelectedServiceAccountId] = useState<string>('')
+    const [domain, setDomain] = useState<string>('')
+    const [q, setQ] = useState<string>('')
+    const [debouncedQ, setDebouncedQ] = useState<string>('')
+    const [isComboboxOpen, setIsComboboxOpen] = useState(false)
+    const [page, _] = useState(1)
+    const size = 100
 
-  const { data: serviceAccountsData, isLoading: isLoadingServiceAccounts } = useServiceAccounts(
-    { apiUrl: identiesApiUrl, token: token!, nodeEnv },
-    { page, size },
-    { enabled: open }
-  )
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        setDebouncedQ(q.trim())
+      }, 300)
 
-  const { mutateAsync: createMembership, isPending: isCreating } = useCreateRoleMembership(
-    { apiUrl: custosApiUrl, token: token!, nodeEnv },
-    roleId,
-    {
-      onSuccess: () => {
-        setSelectedServiceAccountId('')
-        onOpenChange(false)
-      },
+      return () => clearTimeout(timeout)
+    }, [q])
+
+    const isUserMode = currentAccountType === 'user'
+
+    const { data: serviceAccountsData, isLoading: isLoadingServiceAccounts } = useServiceAccounts(
+      { apiUrl: identiesApiUrl, token: token!, nodeEnv },
+      { page, size },
+      { enabled: isOpen && !isUserMode }
+    )
+    const { data: users, isLoading: isLoadingUsers } = useUsers(
+      { apiUrl: custosApiUrl, token: token!, nodeEnv },
+      { page, size, q: isUserMode ? debouncedQ || undefined : undefined },
+      { enabled: isOpen && isUserMode }
+    )
+
+    const { mutateAsync: createMembership, isPending: isCreating } = useCreateRoleMembership(
+      { apiUrl: custosApiUrl, token: token!, nodeEnv },
+      currentRoleId,
+      {
+        onSuccess: () => {
+          closeDialog()
+        },
+      }
+    )
+
+    const handleSubmit = async () => {
+      if (!selectedServiceAccountId) return
+
+      await createMembership({
+        user_id: selectedServiceAccountId,
+        domain: domain || '*',
+      })
     }
-  )
 
-  const handleSubmit = async () => {
-    if (!selectedServiceAccountId) return
+    const selectedAccounts = useMemo(
+      () => (isUserMode ? users?.items || [] : serviceAccountsData?.items || []),
+      [isUserMode, users?.items, serviceAccountsData?.items]
+    )
 
-    await createMembership({
-      user_id: selectedServiceAccountId,
-      domain: domain || '*',
-    })
-  }
+    const accountOptions = useMemo(
+      () =>
+        selectedAccounts.map((account) => {
+          const fullName = `${account.first_name || ''} ${account.last_name || ''}`.trim()
+          const searchValue = `${fullName} ${account.email || ''}`.trim()
 
-  const serviceAccounts = serviceAccountsData?.items || []
+          return {
+            id: account.id,
+            value: account.id,
+            label: fullName || account.email,
+            searchValue,
+            data: account,
+          }
+        }),
+      [selectedAccounts]
+    )
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Bind Service Account</DialogTitle>
-          <DialogDescription>
-            Select a service account to bind to this role. The service account will have all
-            permissions associated with this role.
-          </DialogDescription>
-        </DialogHeader>
+    const selectedOption = useMemo(
+      () => accountOptions.find((option) => option.value === selectedServiceAccountId),
+      [accountOptions, selectedServiceAccountId]
+    )
 
-        {isLoadingServiceAccounts ? (
-          <div className="py-8">
-            <AppPreloader />
-          </div>
-        ) : (
+    const isLoadingAccounts = isLoadingServiceAccounts || isLoadingUsers
+    const isInitialLoading = !debouncedQ && selectedAccounts.length === 0 && isLoadingAccounts
+    const isSearchingUsers = isUserMode && !!debouncedQ && isLoadingUsers
+
+    const closeDialog = () => {
+      setIsOpen(false)
+      setSelectedServiceAccountId('')
+      setDomain('')
+      setQ('')
+      setDebouncedQ('')
+      setIsComboboxOpen(false)
+    }
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        open: ({ roleId: nextRoleId, accountType: nextAccountType }) => {
+          setCurrentRoleId(nextRoleId)
+          setCurrentAccountType(nextAccountType)
+          setIsOpen(true)
+        },
+        close: closeDialog,
+      }),
+      []
+    )
+
+    return (
+      <Dialog open={isOpen} onOpenChange={(nextOpen) => !nextOpen && closeDialog()}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{isUserMode ? 'Add User' : 'Bind Service Account'}</DialogTitle>
+            <DialogDescription>
+              {isUserMode
+                ? 'Select a user to add to this role. The user will have all permissions associated with this role.'
+                : 'Select a service account to bind to this role. The service account will have all permissions associated with this role.'}
+            </DialogDescription>
+          </DialogHeader>
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium">
-                Service Account <span className="text-xs text-red-600">*</span>
+                {isUserMode ? 'User' : 'Service Account'}{' '}
+                <span className="text-xs text-red-600">*</span>
               </Label>
-              <Select value={selectedServiceAccountId} onValueChange={setSelectedServiceAccountId}>
-                <SelectTrigger>
-                  {serviceAccounts.find((val) => val.id === selectedServiceAccountId)?.email ||
-                    'Select a service account'}
-                </SelectTrigger>
-                <SelectContent>
-                  {serviceAccounts.length === 0 ? (
-                    <div className="py-6 text-center text-sm text-muted-foreground">
-                      No service accounts available
-                    </div>
-                  ) : (
-                    serviceAccounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">
-                            {account.first_name} {account.last_name}
-                          </span>
-                          <span className="text-muted-foreground">{account.email}</span>
+              <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isComboboxOpen}
+                    disabled={isInitialLoading}
+                    className="w-full justify-between">
+                    {isInitialLoading ? (
+                      <span className="text-muted-foreground">Loading...</span>
+                    ) : selectedOption ? (
+                      <span>{selectedOption.data?.email || ''}</span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {isUserMode ? 'Select user account' : 'Select service account'}
+                      </span>
+                    )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command shouldFilter={false}>
+                    {isUserMode && (
+                      <CommandInput placeholder="Search users..." value={q} onValueChange={setQ} />
+                    )}
+                    <CommandList className="w-[450px]">
+                      <CommandEmpty>
+                        <div>
+                          {isSearchingUsers
+                            ? 'Searching...'
+                            : isUserMode
+                              ? 'No users available'
+                              : 'No service accounts available'}
                         </div>
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+                      </CommandEmpty>
+                      {!isSearchingUsers && accountOptions.length > 0 && (
+                        <CommandGroup>
+                          {accountOptions.map((option) => (
+                            <CommandItem
+                              key={option.id}
+                              value={option.searchValue || option.label}
+                              onSelect={() => {
+                                setSelectedServiceAccountId(option.value)
+                                setIsComboboxOpen(false)
+                              }}
+                              className="hover:bg-muted cursor-pointer">
+                              <div className="flex flex-col items-start gap-1">
+                                <div className="flex items-center gap-1">
+                                  <span className="font-medium">{option.label}</span>
+                                  {!isUserMode && option.data.service_account && (
+                                    <Badge
+                                      variant="outline"
+                                      className="border border-green-500 text-green-600">
+                                      <span className="text-[10px]">Service Account</span>
+                                    </Badge>
+                                  )}
+                                </div>
+                                <span className="text-muted-foreground text-xs">
+                                  {option.data?.email || ''}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
@@ -120,17 +245,17 @@ export function NewMembershipDialog({
               <Input value={domain} onChange={(e) => setDomain(e.target.value)} />
             </div>
           </div>
-        )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isCreating}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!selectedServiceAccountId || isCreating}>
-            {isCreating ? 'Binding...' : 'Bind Service Account'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDialog} disabled={isCreating}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={!selectedServiceAccountId || isCreating}>
+              {isCreating ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+)
