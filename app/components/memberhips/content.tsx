@@ -50,6 +50,9 @@ export function MembershipContent({
     onSuccess: () => {
       deleteConfirmationRef.current?.close()
     },
+    onError: () => {
+      deleteConfirmationRef.current?.updateConfig({ isLoading: false })
+    },
   })
 
   useEffect(() => {
@@ -64,8 +67,8 @@ export function MembershipContent({
 
   const handleDelete = (membership: MembershipType) => {
     deleteConfirmationRef.current?.open({
-      title: 'Remove Service Account',
-      description: `Are you sure you want to remove "${membership.user.email}" from this role? This action cannot be undone.`,
+      title: 'Remove Membership',
+      description: `Are you sure you want to remove "${membership.user.email}" from membership this role? This action cannot be undone.`,
       onDelete: async () => {
         deleteConfirmationRef?.current?.updateConfig({ isLoading: true })
         await deleteMembership(membership.id)
