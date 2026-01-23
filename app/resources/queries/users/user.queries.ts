@@ -16,7 +16,7 @@ export async function getUsers(
   const { apiUrl, token, nodeEnv } = config
   const { page, size, q } = params
 
-  const users = await fetchApi(`${apiUrl}${USERS_ENDPOINT}/`, token, nodeEnv, {
+  const users = await fetchApi(`${apiUrl}${USERS_ENDPOINT}`, token, nodeEnv, {
     method: 'GET',
     pagination: { page, size },
     params: { q },
