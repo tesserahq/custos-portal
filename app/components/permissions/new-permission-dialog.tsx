@@ -43,7 +43,9 @@ export function NewPermissionDialog({
     nodeEnv,
   }
   const { mutateAsync: createRolePermission, isPending: isCreatingPermission } =
-    useCreateRolePermission(config, { showToast: false })
+    useCreateRolePermission(config, {
+      showToast: false,
+    })
 
   const sanitizePermissionInput = (value: string) => value.replace(/[^a-zA-Z0-9._]/g, '')
 

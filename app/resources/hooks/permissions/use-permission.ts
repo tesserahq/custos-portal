@@ -60,7 +60,7 @@ export function useRolePermissions(
   }
 
   return useQuery({
-    queryKey: permissionQueryKeys.rolePermissions(roleId),
+    queryKey: [...permissionQueryKeys.rolePermissions(roleId), params],
     queryFn: async () => {
       try {
         return await getRolePermissions(config, roleId, params)

@@ -19,7 +19,6 @@ export default function PermissionGridView({
   isLoading,
   onChangePagination,
 }: PermissionContentProps) {
-  const [searchQuery, setSearchQuery] = useState<string>('')
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
   const { mutateAsync: deletePermission, isPending: isDeletingPermission } = useDeletePermission(
     config,
@@ -46,31 +45,15 @@ export default function PermissionGridView({
   }, [permissions?.items])
 
   const filteredPermissions = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return groupedPermissions
-    }
-
-    const query = searchQuery.toLowerCase()
     const filtered: Record<string, PermissionType[]> = {}
 
     Object.entries(groupedPermissions).forEach(([object, actions]) => {
       // Check if object name matches or any action matches
-      const objectMatches = object.toLowerCase().includes(query)
-      const matchingActions = actions.filter((permission) =>
-        permission.action.toLowerCase().includes(query)
-      )
-
-      if (objectMatches) {
-        // If object matches, include all actions
-        filtered[object] = actions
-      } else if (matchingActions.length > 0) {
-        // If any action matches, include only matching actions
-        filtered[object] = matchingActions
-      }
+      filtered[object] = actions
     })
 
     return filtered
-  }, [groupedPermissions, searchQuery])
+  }, [groupedPermissions])
 
   const handleDeletePermissionsGroup = (object: string) => {
     const permissionsToDelete = groupedPermissions[object] || []
@@ -105,68 +88,48 @@ export default function PermissionGridView({
 
   return (
     <div className="space-y-4">
-      <>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search permissions by resource or action..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-search pl-9!"
-            autoFocus
-          />
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {Object.entries(filteredPermissions).length > 0 &&
+          Object.entries(filteredPermissions).map(([object, actions]) => (
+            <Card key={object} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 px-4 pt-4 flex flex-row items-start justify-between gap-2">
+                <CardTitle className="text-sm font-semibold font-mono">{object}</CardTitle>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7"
+                  aria-label={`Remove ${object} permission`}
+                  onClick={() => handleDeletePermissionsGroup(object)}>
+                  <Trash2 size={16} />
+                </Button>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="flex flex-wrap gap-1.5">
+                  {actions.map((permission) => (
+                    <Badge
+                      key={permission.id}
+                      variant="secondary"
+                      className="text-xs font-medium py-0.5 px-2">
+                      {permission.action}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {Object.entries(filteredPermissions).length > 0 ? (
-            Object.entries(filteredPermissions).map(([object, actions]) => (
-              <Card key={object} className="hover:shadow-md transition-shadow">
-                <CardHeader
-                  className="pb-2 px-4 pt-4 flex flex-row items-start justify-between gap-2">
-                  <CardTitle className="text-sm font-semibold font-mono">{object}</CardTitle>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7"
-                    aria-label={`Remove ${object} permission`}
-                    onClick={() => handleDeletePermissionsGroup(object)}>
-                    <Trash2 size={16} />
-                  </Button>
-                </CardHeader>
-                <CardContent className="px-4 pb-4">
-                  <div className="flex flex-wrap gap-1.5">
-                    {actions.map((permission) => (
-                      <Badge
-                        key={permission.id}
-                        variant="secondary"
-                        className="text-xs font-medium py-0.5 px-2">
-                        {permission.action}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-muted-foreground">
-              No permissions found matching &quot;{searchQuery}&quot;
-            </div>
-          )}
-        </div>
-
-        {Object.entries(filteredPermissions).length > 0 && (
-          <Pagination
-            meta={{
-              page: permissions.page,
-              size: permissions.size,
-              total: permissions.total,
-              pages: permissions.pages,
-            }}
-            callback={onChangePagination}
-          />
-        )}
-      </>
+      {Object.entries(filteredPermissions).length > 0 && (
+        <Pagination
+          meta={{
+            page: permissions.page,
+            size: permissions.size,
+            total: permissions.total,
+            pages: permissions.pages,
+          }}
+          callback={onChangePagination}
+        />
+      )}
       <DeleteConfirmation ref={deleteConfirmationRef} />
     </div>
   )
