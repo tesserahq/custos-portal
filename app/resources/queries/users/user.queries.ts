@@ -2,9 +2,10 @@ import { fetchApi } from '@/libraries/fetch'
 import { IPaging } from '@/resources/types'
 import { MembershipType } from '@/resources/queries/memberships/membership.type'
 import { IQueryConfig, IQueryParams } from '..'
-import { UserType } from './user.type'
+import { PermissionCheckRequest, PermissionCheckResponse, UserType } from './user.type'
 
 const USERS_ENDPOINT = '/users'
+const USER_PERMISSION_CHECKS_ENDPOINT = 'permission-checks'
 
 /**
  * Get paginated users
@@ -63,4 +64,29 @@ export async function getUserMemberships(
   )
 
   return memberships as IPaging<MembershipType>
+}
+
+/**
+ * Check if a user can execute a specific action
+ */
+export async function checkUserPermission(
+  config: IQueryConfig,
+  userId: string,
+  data: PermissionCheckRequest
+): Promise<PermissionCheckResponse> {
+  const { apiUrl, token, nodeEnv } = config
+
+  const response = await fetchApi(
+    `${apiUrl}${USERS_ENDPOINT}/${userId}/${USER_PERMISSION_CHECKS_ENDPOINT}`,
+    token,
+    nodeEnv,
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }
+  )
+
+  console.log('response ', response)
+
+  return response as PermissionCheckResponse
 }
