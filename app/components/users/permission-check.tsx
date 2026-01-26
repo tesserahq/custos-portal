@@ -62,28 +62,6 @@ const parsePermissionValue = (value: string) => {
   }
 }
 
-const resolvePermissionAllowed = (response: PermissionCheckResponse) => {
-  if (typeof response === 'boolean') {
-    return response
-  }
-
-  if (!response || typeof response !== 'object') {
-    return null
-  }
-
-  const responseRecord = response as Record<string, unknown>
-  const keys = ['allowed', 'has_permission', 'permitted', 'result']
-
-  for (const key of keys) {
-    const value = responseRecord[key]
-    if (typeof value === 'boolean') {
-      return value
-    }
-  }
-
-  return null
-}
-
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
     try {
