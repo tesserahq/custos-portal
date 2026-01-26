@@ -69,7 +69,7 @@ export const NewMembershipDialog = forwardRef<NewMembershipDialogHandle, NewMemb
     const { data: users, isLoading: isLoadingUsers } = useUsers(
       { apiUrl: identiesApiUrl, token: token!, nodeEnv },
       { page, size, q: isUserMode ? debouncedQ || undefined : undefined },
-      { enabled: isOpen && isUserMode }
+      { enabled: isOpen && isUserMode, isIdenties: true }
     )
 
     const { mutateAsync: createMembership, isPending: isCreating } = useCreateRoleMembership(
