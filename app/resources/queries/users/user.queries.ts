@@ -11,12 +11,15 @@ const USERS_ENDPOINT = '/users'
  */
 export async function getUsers(
   config: IQueryConfig,
-  params: IQueryParams
+  params: IQueryParams,
+  isIdenties?: boolean
 ): Promise<IPaging<UserType>> {
   const { apiUrl, token, nodeEnv } = config
   const { page, size, q } = params
 
-  const users = await fetchApi(`${apiUrl}${USERS_ENDPOINT}/`, token, nodeEnv, {
+  const endpoint = isIdenties ? USERS_ENDPOINT : `${USERS_ENDPOINT}/`
+
+  const users = await fetchApi(`${apiUrl}${endpoint}`, token, nodeEnv, {
     method: 'GET',
     pagination: { page, size },
     params: { q },

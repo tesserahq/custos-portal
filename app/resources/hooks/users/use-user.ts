@@ -47,6 +47,7 @@ export function useUsers(
   options?: {
     enabled?: boolean
     staleTime?: number
+    isIdenties?: boolean
   }
 ) {
   if (!config.token) {
@@ -57,7 +58,7 @@ export function useUsers(
     queryKey: userQueryKeys.list(config, params),
     queryFn: async () => {
       try {
-        return await getUsers(config, params)
+        return await getUsers(config, params, options?.isIdenties)
       } catch (error: any) {
         throw new QueryError(error)
       }

@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,7 @@ import { Input } from '@/modules/shadcn/ui/input'
 import { useUsers } from '@/resources/hooks/users/use-user'
 import { ChevronsUpDown } from 'lucide-react'
 import { Badge } from '@/modules/shadcn/ui/badge'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 
 export interface NewMembershipDialogHandle {
   open: (params: { roleId: string; accountType: 'user' | 'service_account' }) => void
@@ -53,18 +54,10 @@ export const NewMembershipDialog = forwardRef<NewMembershipDialogHandle, NewMemb
     const [selectedServiceAccountId, setSelectedServiceAccountId] = useState<string>('')
     const [domain, setDomain] = useState<string>('')
     const [q, setQ] = useState<string>('')
-    const [debouncedQ, setDebouncedQ] = useState<string>('')
     const [isComboboxOpen, setIsComboboxOpen] = useState(false)
     const [page, _] = useState(1)
     const size = 100
-
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        setDebouncedQ(q.trim())
-      }, 300)
-
-      return () => clearTimeout(timeout)
-    }, [q])
+    const debouncedQ = useDebouncedValue(q.trim(), 300, { minLength: 3 })
 
     const isUserMode = currentAccountType === 'user'
 
@@ -74,9 +67,9 @@ export const NewMembershipDialog = forwardRef<NewMembershipDialogHandle, NewMemb
       { enabled: isOpen && !isUserMode }
     )
     const { data: users, isLoading: isLoadingUsers } = useUsers(
-      { apiUrl: custosApiUrl, token: token!, nodeEnv },
+      { apiUrl: identiesApiUrl, token: token!, nodeEnv },
       { page, size, q: isUserMode ? debouncedQ || undefined : undefined },
-      { enabled: isOpen && isUserMode }
+      { enabled: isOpen && isUserMode, isIdenties: true }
     )
 
     const { mutateAsync: createMembership, isPending: isCreating } = useCreateRoleMembership(
@@ -134,7 +127,6 @@ export const NewMembershipDialog = forwardRef<NewMembershipDialogHandle, NewMemb
       setSelectedServiceAccountId('')
       setDomain('')
       setQ('')
-      setDebouncedQ('')
       setIsComboboxOpen(false)
     }
 
