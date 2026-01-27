@@ -1,5 +1,4 @@
 import { Form, useFormContext } from '@/components/form'
-import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { Badge } from '@/modules/shadcn/ui/badge'
 import { Button } from '@/modules/shadcn/ui/button'
 import {
@@ -78,15 +77,13 @@ const getErrorMessage = (error: unknown) => {
 function PermissionCheckFields({
   options,
   isLoading,
-  searchValue,
   onSearchChange,
   onActionChange,
   actionLocked,
   setActionLocked,
 }: {
-  options: { label: string; value: string; searchValue?: string }[]
+  options: { label: string; value: string }[]
   isLoading: boolean
-  searchValue: string
   onSearchChange: (value: string) => void
   onActionChange: (value: string) => void
   actionLocked: boolean
@@ -101,38 +98,29 @@ function PermissionCheckFields({
     }
 
     const { action } = parsePermissionValue(selectedResource)
-    const currentAction = form.getValues('action')
 
-    if (action && (!actionLocked || !currentAction)) {
-      form.setValue('action', action, { shouldValidate: true })
-      if (!currentAction) {
-        setActionLocked(false)
-      }
-    }
-  }, [selectedResource, actionLocked, form, setActionLocked])
+    form.setValue('action', action)
+  }, [selectedResource, form])
 
   return (
     <div className="space-y-3">
-      <Form.Command
+      <Form.Autocomplete
         field="resource"
         label="Resource"
         required
-        placeholder="Select permission resource"
-        searchPlaceholder="Search permissions..."
-        emptyText="No permissions found."
+        placeholder="Search permissions e.g:linden.read"
         options={options}
         isLoading={isLoading}
-        searchValue={searchValue}
-        onSearchChange={(value) => {
-          onSearchChange(value || '')
-        }}
+        onSearchChange={onSearchChange}
+        minLength={2}
+        debounceMs={400}
       />
 
       <Form.Input
         field="action"
         label="Action"
         required
-        placeholder="read"
+        placeholder="e.g:create, read, update, delete"
         onChange={(event) => {
           const value = event.target.value
           const hasValue = value.trim().length > 0
@@ -151,8 +139,6 @@ function PermissionCheckContent({ config, userId }: PermissionCheckProps) {
   const [actionLocked, setActionLocked] = useState(false)
   const [result, setResult] = useState<PermissionCheckResponse | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 400, { minLength: 2 })
-
   const {
     data: permissions,
     isLoading: isPermissionsLoading,
@@ -163,17 +149,17 @@ function PermissionCheckContent({ config, userId }: PermissionCheckProps) {
     {
       page: 1,
       size: 100,
-      q: debouncedSearchValue,
+      q: searchValue.trim(),
     },
-    { enabled: !!config.token }
+    { enabled: !!config.token && searchValue.trim().length > 3 }
   )
 
   const permissionOptions = useMemo(() => {
     return (permissions?.items ?? []).map((permission) => {
+      const label = `${permission.object}.${permission.action}`
       return {
-        label: `${permission.object}.${permission.action}`,
-        value: `${permission.object}.${permission.action}`,
-        searchValue: `${permission.object}.${permission.action}`,
+        label,
+        value: label,
       }
     })
   }, [permissions])
@@ -184,10 +170,9 @@ function PermissionCheckContent({ config, userId }: PermissionCheckProps) {
     setErrorMessage(null)
     setResult(null)
 
-    const parsed = parsePermissionValue(values.resource)
     const payload = {
-      resource: parsed.resource || values.resource,
-      action: values.action || parsed.action,
+      resource: values.resource,
+      action: values.action,
       domain: values.domain || '*',
     }
 
@@ -214,7 +199,6 @@ function PermissionCheckContent({ config, userId }: PermissionCheckProps) {
           <PermissionCheckFields
             options={permissionOptions}
             isLoading={isPermissionsLoading || isPermissionsFetching}
-            searchValue={searchValue}
             onSearchChange={(value) => {
               setSearchValue(value || '')
             }}
@@ -252,8 +236,8 @@ function PermissionCheckContent({ config, userId }: PermissionCheckProps) {
       )}
 
       {result && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm">
-          <h2 className="font-semibold text-base mb-2 text-slate-700">Result</h2>
+        <div className="rounded-md border bg-card px-3 py-3 text-sm">
+          <h2 className="font-semibold text-lg mb-3 text-slate-700 dark:text-slate-100">Result</h2>
           <div className="mt-2 text-xs text-slate-600">
             <div className="d-list">
               <div className="d-item">

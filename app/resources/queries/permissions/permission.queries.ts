@@ -16,7 +16,7 @@ export async function getPermissions(
   const { apiUrl, token, nodeEnv } = config
   const { page, size, q } = params
 
-  const permissions = await fetchApi(`${apiUrl}${PERMISSIONS_ENDPOINT}/`, token, nodeEnv, {
+  const permissions = await fetchApi(`${apiUrl}${PERMISSIONS_ENDPOINT}`, token, nodeEnv, {
     method: 'GET',
     params: { q },
     pagination: { page, size },

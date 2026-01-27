@@ -86,7 +86,5 @@ export async function checkUserPermission(
     }
   )
 
-  console.log('response ', response)
-
   return response as PermissionCheckResponse
 }
