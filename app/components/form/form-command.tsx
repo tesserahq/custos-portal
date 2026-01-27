@@ -17,10 +17,16 @@ import {
 } from '@/modules/shadcn/ui/command'
 import { Dialog, DialogContent } from '@/modules/shadcn/ui/dialog'
 import { Button } from '@/modules/shadcn/ui/button'
-import { CheckIcon, ChevronsUpDownIcon, Loader2 } from 'lucide-react'
+import { CheckIcon, ChevronsUpDownIcon, CircleQuestionMark, Loader2 } from 'lucide-react'
 import { ComponentProps, useState, type ReactNode } from 'react'
 import { cn } from '@shadcn/lib/utils'
 import { type DialogProps } from '@radix-ui/react-dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/modules/shadcn/ui/tooltip'
 
 export interface CommandOption {
   value: string
@@ -29,25 +35,16 @@ export interface CommandOption {
   searchValue?: string
 }
 
-// Custom CommandDialog that supports Command props
+// Custom CommandDialog wrapper
 interface CustomCommandDialogProps extends DialogProps {
-  commandValue?: string
-  onCommandValueChange?: (value: string) => void
   children: ReactNode
 }
 
-const CommandDialog = ({
-  commandValue,
-  onCommandValueChange,
-  children,
-  ...dialogProps
-}: CustomCommandDialogProps) => {
+const CommandDialog = ({ children, ...dialogProps }: CustomCommandDialogProps) => {
   return (
     <Dialog {...dialogProps}>
       <DialogContent className="overflow-hidden p-0 shadow-lg">
         <Command
-          value={commandValue}
-          onValueChange={onCommandValueChange}
           className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2
             [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2
             [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5
@@ -97,18 +94,35 @@ const CommandSelect = ({
   const selectedOption = options.find((option) => option.value === value)
 
   const handleSelect = (currentValue: string) => {
-    const selected = options.find(
-      (option) => (option.searchValue ?? option.label).toLowerCase() === currentValue.toLowerCase()
-    )
+    if (currentValue) {
+      const selected = options.find(
+        (option) =>
+          (option.searchValue ?? option.label).toLowerCase() === currentValue.toLowerCase()
+      )
 
-    if (selected) {
-      onChange(selected.value === value ? undefined : selected.value)
+      if (selected) {
+        onChange(selected.value === value ? undefined : selected.value)
+      }
+
+      setOpen(false)
     }
-    setOpen(false)
   }
 
   const handleSearchChange = (search: string) => {
-    onSearchChange?.(search)
+    onSearchChange?.(search || '')
+  }
+
+  const commandInputProps: ComponentProps<typeof CommandInput> = {
+    placeholder: searchPlaceholder,
+    disabled: isLoading,
+  }
+
+  if (searchValue !== undefined) {
+    commandInputProps.value = searchValue
+  }
+
+  if (onSearchChange) {
+    commandInputProps.onValueChange = handleSearchChange
   }
 
   return (
@@ -116,6 +130,7 @@ const CommandSelect = ({
       <Button
         variant="outline"
         role="combobox"
+        type="button"
         aria-expanded={open}
         disabled={isLoading || disabled}
         onClick={() => setOpen(true)}
@@ -129,53 +144,53 @@ const CommandSelect = ({
         )}
         <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
-      <CommandDialog
-        open={open}
-        onOpenChange={setOpen}
-        commandValue={searchValue}
-        onCommandValueChange={handleSearchChange}
-        {...dialogProps}>
-        {searchable && <CommandInput placeholder={searchPlaceholder} disabled={isLoading} />}
+      <CommandDialog open={open} onOpenChange={setOpen} {...dialogProps}>
+        {searchable && <CommandInput {...commandInputProps} />}
         <CommandList>
-          <CommandEmpty>{emptyText}</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => {
-              const isSelected = value === option.value
-              const optionSearchValue = option.searchValue ?? option.label
+          {isLoading ? (
+            <div className="flex justify-center items-center h-20 gap-2">
+              <Loader2 size={15} className="animate animate-spin text-muted-foreground" />
+              <span>Searching....</span>
+            </div>
+          ) : (
+            <>
+              <CommandEmpty>{emptyText}</CommandEmpty>
+              <CommandGroup>
+                {options.map((option, index) => {
+                  const isSelected = value === option.value
+                  const optionSearchValue = option.searchValue ?? option.label
 
-              return (
-                <CommandItem
-                  key={option.value}
-                  value={optionSearchValue}
-                  disabled={option.disabled}
-                  className={cn(
-                    `dark:hover:bg-navy-300/20 cursor-pointer text-base capitalize
-                    hover:bg-slate-300/20`,
-                    isSelected && 'bg-accent',
-                    option.disabled && 'cursor-not-allowed opacity-50'
-                  )}
-                  onSelect={handleSelect}>
-                  <CheckIcon
-                    className={cn(
-                      'mr-2 h-4 w-4 shrink-0',
-                      isSelected ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                  <span className="truncate">{option.label}</span>
-                </CommandItem>
-              )
-            })}
-          </CommandGroup>
+                  return (
+                    <CommandItem
+                      key={`${option.value}-${index}`}
+                      value={optionSearchValue}
+                      disabled={option.disabled}
+                      className={cn(
+                        'dark:hover:bg-navy-300/20 cursor-pointer text-base hover:bg-slate-300/20',
+                        isSelected && 'bg-accent',
+                        option.disabled && 'cursor-not-allowed opacity-50'
+                      )}
+                      onSelect={handleSelect}>
+                      <CheckIcon
+                        className={cn(
+                          'mr-2 h-4 w-4 shrink-0',
+                          isSelected ? 'opacity-100' : 'opacity-0'
+                        )}
+                      />
+                      <span className="truncate text-sm">{option.label}</span>
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </>
+          )}
         </CommandList>
       </CommandDialog>
     </>
   )
 }
 
-interface FormCommandProps extends Omit<
-  ComponentProps<typeof CommandDialog>,
-  'commandValue' | 'onCommandValueChange' | 'children'
-> {
+interface FormCommandProps extends Omit<ComponentProps<typeof CommandDialog>, 'children'> {
   field: string
   label?: string
   description?: string
@@ -227,10 +242,30 @@ export const FormCommand = ({
       render={({ field: fieldProps }) => (
         <FormItem>
           {label && (
-            <FormLabel
-              className={required ? 'after:text-destructive after:ml-0.5 after:content-["*"]' : ''}>
-              {label}
-            </FormLabel>
+            <div className="flex items-center gap-1">
+              <FormLabel
+                className={cn(
+                  'mb-0',
+                  required && 'after:text-destructive after:ml-0.5 after:content-["*"]'
+                )}>
+                {label}
+              </FormLabel>
+              {description && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger className="cursor-pointer">
+                      <CircleQuestionMark size={15} />
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="right"
+                      align="end"
+                      className="text-muted-foreground max-w-[500px]">
+                      {description}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           )}
           {description && <FormDescription>{description}</FormDescription>}
           <FormControl>

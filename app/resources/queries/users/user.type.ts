@@ -16,3 +16,18 @@ export type UserType = {
   created_at: string
   updated_at: string
 }
+
+export type PermissionCheckRequest = {
+  resource: string
+  action: string
+  domain: string
+}
+
+export type PermissionCheckResponse = {
+  allowed: boolean
+  user_id: string
+  resource: string
+  action: string
+  domain: string
+  reason: string
+}

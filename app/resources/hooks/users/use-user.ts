@@ -1,9 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IQueryConfig, IQueryParams } from '@/resources/queries'
 import { MembershipType } from '@/resources/queries/memberships/membership.type'
-import { getUser, getUserMemberships, getUsers } from '@/resources/queries/users/user.queries'
-import { UserType } from '@/resources/queries/users/user.type'
-import { useQuery } from '@tanstack/react-query'
+import {
+  checkUserPermission,
+  getUser,
+  getUserMemberships,
+  getUsers,
+} from '@/resources/queries/users/user.queries'
+import {
+  PermissionCheckRequest,
+  PermissionCheckResponse,
+  UserType,
+} from '@/resources/queries/users/user.type'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 /**
  * Custom error class for query errors
@@ -128,5 +137,36 @@ export function useUserMemberships(
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && !!userId,
+  })
+}
+
+/**
+ * Hook to check a user's permission for a specific action
+ */
+export function usePermissionCheck(
+  config: IQueryConfig,
+  options?: {
+    onSuccess?: (data: PermissionCheckResponse) => void
+    onError?: (error: Error) => void
+  }
+) {
+  return useMutation({
+    mutationFn: async ({ userId, data }: { userId: string; data: PermissionCheckRequest }) => {
+      try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
+        return await checkUserPermission(config, userId, data)
+      } catch (error: any) {
+        throw new QueryError(error)
+      }
+    },
+    onSuccess: (data) => {
+      options?.onSuccess?.(data)
+    },
+    onError: (error: Error) => {
+      options?.onError?.(error)
+    },
   })
 }

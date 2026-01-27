@@ -5,6 +5,7 @@ import { useUser } from '@/resources/hooks/users/use-user'
 import { useLoaderData } from 'react-router'
 import { DateTime } from 'tessera-ui/components'
 import { Badge } from '@/modules/shadcn/ui/badge'
+import { UserPermissionCheckDialog } from '@/components/users/permission-check'
 
 export async function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
@@ -27,7 +28,9 @@ export default function UserOverview() {
 
   return (
     <div className="animate-slide-up space-y-5">
-      <DetailContent title={user?.email || ''}>
+      <DetailContent
+        title={user?.email || ''}
+        actions={<UserPermissionCheckDialog config={config} userId={id} />}>
         <div className="d-list">
           <div className="d-item">
             <dt className="d-label">Email</dt>

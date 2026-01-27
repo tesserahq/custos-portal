@@ -8,6 +8,7 @@ import { FormSwitch } from './form-switch'
 import { FormTextarea } from './form-textarea'
 import { FormEmail } from './form-email'
 import { FormCommand } from './form-command'
+import { FormAutocomplete } from './form-autocomplete'
 
 const FormCompound = Object.assign(Form, {
   Input: FormInput,
@@ -18,6 +19,7 @@ const FormCompound = Object.assign(Form, {
   DatePicker: FormDatePicker,
   Email: FormEmail,
   Command: FormCommand,
+  Autocomplete: FormAutocomplete,
   Provider: FormProvider,
 })
 

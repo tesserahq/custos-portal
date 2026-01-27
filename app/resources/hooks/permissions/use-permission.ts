@@ -3,6 +3,7 @@ import { IQueryConfig, IQueryParams } from '@/resources/queries'
 import {
   createRolePermission,
   deletePermission,
+  getPermissions,
   getPermission,
   getRolePermissions,
   updatePermission,
@@ -35,9 +36,43 @@ class QueryError extends Error {
  */
 export const permissionQueryKeys = {
   all: ['permissions'] as const,
+  lists: () => [...permissionQueryKeys.all, 'list'] as const,
+  list: (params: IQueryParams) => [...permissionQueryKeys.lists(), params] as const,
   rolePermissions: (roleId: string) => [...permissionQueryKeys.all, 'role', roleId] as const,
   details: () => [...permissionQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...permissionQueryKeys.details(), id] as const,
+}
+
+/**
+ * Hook for fetching permissions
+ * @config - Permission query configuration
+ * @params - Permission query parameters
+ * @options - Permission query options
+ */
+export function usePermissions(
+  config: IQueryConfig,
+  params: IQueryParams,
+  options?: {
+    enabled?: boolean
+    staleTime?: number
+  }
+) {
+  if (!config.token) {
+    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+  }
+
+  return useQuery({
+    queryKey: permissionQueryKeys.list(params),
+    queryFn: async () => {
+      try {
+        return await getPermissions(config, params)
+      } catch (error: any) {
+        throw new QueryError(error)
+      }
+    },
+    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled !== false,
+  })
 }
 
 /**
@@ -60,7 +95,7 @@ export function useRolePermissions(
   }
 
   return useQuery({
-    queryKey: permissionQueryKeys.rolePermissions(roleId),
+    queryKey: [...permissionQueryKeys.rolePermissions(roleId), params],
     queryFn: async () => {
       try {
         return await getRolePermissions(config, roleId, params)

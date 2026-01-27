@@ -18,7 +18,6 @@ export default function PermissionListView({
   isLoading,
   onChangePagination,
 }: PermissionContentProps) {
-  const [searchQuery, setSearchQuery] = useState<string>('')
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
   const { mutateAsync: deletePermission } = useDeletePermission(config, {
     onSuccess: () => {
@@ -30,17 +29,8 @@ export default function PermissionListView({
   })
 
   const filteredPermissions = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return permissions.items
-    }
-
-    return permissions.items.filter((permission) => {
-      return (
-        permission.object.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        permission.action.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    })
-  }, [permissions.items, searchQuery])
+    return permissions?.items
+  }, [permissions?.items])
 
   const handleDelete = (permission: PermissionType) => {
     deleteConfirmationRef.current?.open({
@@ -119,26 +109,14 @@ export default function PermissionListView({
         },
       },
     ],
-    [permissions.items]
+    [permissions?.items]
   )
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search permissions by resource or action..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="input-search pl-9!"
-          autoFocus
-        />
-      </div>
-
       <DataTable
         columns={columns}
-        data={filteredPermissions || []}
+        data={filteredPermissions ?? []}
         isLoading={isLoading}
         fixed={false}
         meta={

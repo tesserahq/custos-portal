@@ -7,6 +7,25 @@ const PERMISSIONS_ENDPOINT = '/permissions'
 const ROLES_ENDPOINT = '/roles'
 
 /**
+ * Get all permissions
+ */
+export async function getPermissions(
+  config: IQueryConfig,
+  params: IQueryParams
+): Promise<IPaging<PermissionType>> {
+  const { apiUrl, token, nodeEnv } = config
+  const { page, size, q } = params
+
+  const permissions = await fetchApi(`${apiUrl}${PERMISSIONS_ENDPOINT}`, token, nodeEnv, {
+    method: 'GET',
+    params: { q },
+    pagination: { page, size },
+  })
+
+  return permissions as IPaging<PermissionType>
+}
+
+/**
  * Get all permissions for a specific role
  */
 export async function getRolePermissions(
@@ -15,7 +34,7 @@ export async function getRolePermissions(
   params: IQueryParams
 ): Promise<IPaging<PermissionType>> {
   const { apiUrl, token, nodeEnv } = config
-  const { page, size } = params
+  const { page, size, q } = params
 
   const permissions = await fetchApi(
     `${apiUrl}${ROLES_ENDPOINT}/${roleId}${PERMISSIONS_ENDPOINT}`,
@@ -23,6 +42,7 @@ export async function getRolePermissions(
     nodeEnv,
     {
       method: 'GET',
+      params: { q },
       pagination: { page, size },
     }
   )
