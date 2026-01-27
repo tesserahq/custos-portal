@@ -47,20 +47,6 @@ const permissionCheckSchema = z.object({
   domain: z.string().min(1, 'Domain is required'),
 })
 
-const parsePermissionValue = (value: string) => {
-  const trimmedValue = value.trim()
-  const lastDotIndex = trimmedValue.lastIndexOf('.')
-
-  if (lastDotIndex === -1) {
-    return { resource: trimmedValue, action: '' }
-  }
-
-  return {
-    resource: trimmedValue.slice(0, lastDotIndex),
-    action: trimmedValue.slice(lastDotIndex + 1),
-  }
-}
-
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
     try {
@@ -74,15 +60,18 @@ const getErrorMessage = (error: unknown) => {
   return 'Something went wrong while checking permission.'
 }
 
+type PermissionOption = {
+  label: string
+  value: string
+  children?: { label: string; value: string }[]
+}
+
 function PermissionCheckFields({
   options,
   isLoading,
   onSearchChange,
-  onActionChange,
-  actionLocked,
-  setActionLocked,
 }: {
-  options: { label: string; value: string }[]
+  options: PermissionOption[]
   isLoading: boolean
   onSearchChange: (value: string) => void
   onActionChange: (value: string) => void
@@ -91,16 +80,24 @@ function PermissionCheckFields({
 }) {
   const { form } = useFormContext()
   const selectedResource = form.watch('resource')
+  const [actions, setActions] = useState<{ label: string; value: string }[]>([])
 
   useEffect(() => {
     if (!selectedResource) {
+      setActions([])
       return
     }
 
-    const { action } = parsePermissionValue(selectedResource)
+    const selectedResourceOption = options.find((val) => val.value === selectedResource)
 
-    form.setValue('action', action)
+    setActions(selectedResourceOption?.children ?? [])
   }, [selectedResource, form])
+
+  useEffect(() => {
+    if (actions.length === 1) {
+      form.setValue('action', actions[0].value)
+    }
+  }, [actions])
 
   return (
     <div className="space-y-3">
@@ -116,17 +113,13 @@ function PermissionCheckFields({
         debounceMs={400}
       />
 
-      <Form.Input
+      <Form.Select
         field="action"
-        label="Action"
+        label="Actions"
+        disabled={actions.length === 0}
         required
-        placeholder="e.g:create, read, update, delete"
-        onChange={(event) => {
-          const value = event.target.value
-          const hasValue = value.trim().length > 0
-          setActionLocked(hasValue)
-          onActionChange(value)
-        }}
+        placeholder="Select an action"
+        options={actions}
       />
 
       <Form.Input field="domain" label="Domain" required placeholder="*" />
@@ -155,11 +148,24 @@ function PermissionCheckContent({ config, userId }: PermissionCheckProps) {
   )
 
   const permissionOptions = useMemo(() => {
-    return (permissions?.items ?? []).map((permission) => {
-      const label = `${permission.object}.${permission.action}`
+    const actionsByObject = new Map<string, string[]>()
+
+    ;(permissions?.items ?? []).forEach((permission) => {
+      const existingActions = actionsByObject.get(permission.object) ?? []
+      if (!existingActions.includes(permission.action)) {
+        existingActions.push(permission.action)
+      }
+      actionsByObject.set(permission.object, existingActions)
+    })
+
+    return Array.from(actionsByObject.entries()).map(([object, actions]) => {
       return {
-        label,
-        value: label,
+        label: object,
+        value: object,
+        children: actions.map((action) => ({
+          label: action,
+          value: action,
+        })),
       }
     })
   }, [permissions])
