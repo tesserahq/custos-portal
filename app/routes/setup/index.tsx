@@ -4,7 +4,7 @@ import { Button } from '@shadcn/ui/button'
 import { fetchApi } from '@/libraries/fetch'
 import { useLoaderData, useNavigate } from 'react-router'
 import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from 'tessera-ui/components'
 import { useApp } from '@/context/AppContext'
 import { useHandleApiError } from '@/hooks/useHandleApiError'
 

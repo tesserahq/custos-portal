@@ -11,7 +11,7 @@ import {
   MembershipType,
 } from '@/resources/queries/memberships/membership.type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toast } from 'tessera-ui/components'
 
 /**
  * Custom error class for query errors

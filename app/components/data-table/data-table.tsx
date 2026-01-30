@@ -5,7 +5,7 @@ import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-tabl
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@shadcn/ui/table'
 import { cn } from '@shadcn/lib/utils'
 import { useEffect, useRef, useState } from 'react'
-import { Pagination } from './data-pagination'
+import { Pagination } from 'tessera-ui/components'
 import { TableCellSkeletons } from './data-table-skeleton'
 import { DataTableProps } from './types'
 

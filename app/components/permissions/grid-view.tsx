@@ -5,7 +5,7 @@ import { Button } from '@shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@shadcn/ui/card'
 import { Search, Trash2 } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from 'tessera-ui/components'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,
 } from 'tessera-ui/components/delete-confirmation'

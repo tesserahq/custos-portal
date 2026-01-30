@@ -14,27 +14,26 @@ import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
 
 // Import global CSS styles for the application
 // The ?url query parameter tells the bundler to handle this as a URL import
-import SpinnerCSS from '@/styles/spinner.css?url'
-import RootCSS from '@/styles/root.css?url'
-import 'react-day-picker/style.css'
-import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-country-state-city.css?url'
 import { ClientHintCheck } from '@/components/misc/ClientHints'
 import { GenericErrorBoundary } from '@/components/misc/ErrorBoundary'
-import { Toaster } from '@shadcn/ui/sonner'
-import { SITE_CONFIG } from '@/utils/config/site.config'
+import RootCSS from '@/styles/root.css?url'
+import SpinnerCSS from '@/styles/spinner.css?url'
+import ReactCountryStateCityCSS from 'react-country-state-city/dist/react-country-state-city.css?url'
+import 'react-day-picker/style.css'
+// import { Toaster } from '@shadcn/ui/sonner'
+import { ProgressBar } from '@/components/loader/progress-bar'
+import { AppProvider } from '@/context/AppContext'
 import { getHints } from '@/hooks/useHints'
 import { useNonce } from '@/hooks/useNonce'
 import { getTheme, Theme, useTheme } from '@/hooks/useTheme'
-import { useToast } from '@/hooks/useToast'
+import { ReactQueryProvider } from '@/modules/react-query'
 import { csrf } from '@/utils/cookies/csrf.server'
-import { combineHeaders, getDomainUrl } from '@/utils/helpers/misc.helper'
 import { getToastSession } from '@/utils/cookies/toast.server'
+import { metaObject } from '@/utils/helpers/meta.helper'
+import { combineHeaders, getDomainUrl } from '@/utils/helpers/misc.helper'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
-import { ProgressBar } from '@/components/loader/progress-bar'
-import { AppProvider } from '@/context/AppContext'
-import { ReactQueryProvider } from '@/modules/react-query'
-import { metaObject } from '@/utils/helpers/meta.helper'
+import { Toaster } from 'tessera-ui/components'
 
 library.add(fab)
 
@@ -141,7 +140,7 @@ function Document({
         {children}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
-        <Toaster closeButton position="top-right" theme={theme} richColors />
+        <Toaster position="top-right" theme={theme} />
       </body>
     </html>
   )
@@ -162,9 +161,6 @@ export default function AppWithProviders() {
 
   const nonce = useNonce()
   const theme = useTheme()
-
-  // Renders toast (if any).
-  useToast(toast)
 
   return (
     <Document nonce={nonce} theme={theme}>
