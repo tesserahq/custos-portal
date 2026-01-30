@@ -7,6 +7,7 @@
     "build": "node ./build.mjs",
     "dev": "node ./server.mjs",
     "start": "cross-env NODE_ENV=production node ./server.mjs",
+    "prepare": "lefthook install",
     "lint": "npx eslint \"{app,lib}/**/*.{ts,tsx}\"",
     "lint:fix": "npx eslint \"{app,lib}/**/*.{ts,tsx}\" --fix",
     "check": "bun run format && bun run lint && bun run typecheck",
