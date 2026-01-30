@@ -43,5 +43,3 @@ export default [
   // Catch-all route for 404 errors - must be last
   route('*', 'routes/not-found.tsx'),
 ] as RouteConfig
-
-// Tes
