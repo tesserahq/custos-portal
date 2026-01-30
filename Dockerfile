@@ -12,9 +12,9 @@ ENV NODE_ENV="production"
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install dependencies
+# Install dependencies (skip lifecycle scripts in container builds)
 COPY --link package.json bun.lock ./
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Copy application code
 COPY --link . .
@@ -22,8 +22,8 @@ COPY --link . .
 # Build application
 RUN bun run build
 
-# Remove development dependencies
-RUN bun install --production --frozen-lockfile
+# Remove development dependencies (skip lifecycle scripts in container builds)
+RUN bun install --production --frozen-lockfile --ignore-scripts
 
 # Final stage for app image
 FROM base
