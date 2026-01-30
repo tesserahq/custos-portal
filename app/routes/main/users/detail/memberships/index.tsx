@@ -11,7 +11,7 @@ import { MembershipType } from '@/resources/queries/memberships/membership.type'
 import { ColumnDef } from '@tanstack/react-table'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Link, useLoaderData, useNavigate } from 'react-router'
-import { toast } from 'sonner'
+import { toast } from 'tessera-ui/components'
 import { DateTime, EmptyContent, NewButton } from 'tessera-ui/components'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,

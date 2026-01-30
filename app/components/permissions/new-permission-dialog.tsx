@@ -15,7 +15,7 @@ import { Label } from '@/modules/shadcn/ui/label'
 import { useCreateRolePermission } from '@/resources/hooks/permissions/use-permission'
 import { X } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from 'tessera-ui/components'
 
 interface NewPermissionDialogProps {
   open: boolean
