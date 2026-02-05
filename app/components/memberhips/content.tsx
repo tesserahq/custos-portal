@@ -81,34 +81,27 @@ export function MembershipContent({
       {
         accessorKey: 'user.email',
         header: 'Email',
-        size: 250,
         cell: ({ row }) => {
           const email = row.original.user.email
-          return (
-            <div className="max-w-[200px] truncate" title={email}>
-              {email || '-'}
-            </div>
-          )
+          return <div>{email || '-'}</div>
         },
       },
       {
         accessorKey: 'user.first_name',
         header: 'Name',
-        size: 250,
         cell: ({ row }) => {
           const { first_name, last_name } = row.original.user
           const fullName = `${first_name || ''} ${last_name || ''}`.trim() || '-'
-          return (
-            <div className="max-w-[200px] truncate" title={fullName}>
-              {fullName}
-            </div>
-          )
+          return <div>{fullName}</div>
         },
+      },
+      {
+        accessorKey: 'domain',
+        header: 'Domain',
       },
       {
         accessorKey: 'created_at',
         header: 'Created At',
-        size: 200,
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string
           return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy HH:mm" />
