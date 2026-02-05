@@ -83,11 +83,7 @@ export function MembershipContent({
         header: 'Email',
         cell: ({ row }) => {
           const email = row.original.user.email
-          return (
-            <div className="max-w-[200px] truncate" title={email}>
-              {email || '-'}
-            </div>
-          )
+          return <div>{email || '-'}</div>
         },
       },
       {
@@ -96,17 +92,12 @@ export function MembershipContent({
         cell: ({ row }) => {
           const { first_name, last_name } = row.original.user
           const fullName = `${first_name || ''} ${last_name || ''}`.trim() || '-'
-          return (
-            <div className="max-w-[200px] truncate" title={fullName}>
-              {fullName}
-            </div>
-          )
+          return <div>{fullName}</div>
         },
       },
       {
         accessorKey: 'domain',
         header: 'Domain',
-        // size: 250,
       },
       {
         accessorKey: 'created_at',
