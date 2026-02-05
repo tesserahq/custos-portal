@@ -78,7 +78,6 @@ export default function UserMembershipsIndex() {
       {
         accessorKey: 'role.name',
         header: 'Role',
-        size: 240,
         cell: ({ row }) => {
           const role = row.original.role
           return (
@@ -89,9 +88,12 @@ export default function UserMembershipsIndex() {
         },
       },
       {
+        accessorKey: 'domain',
+        header: 'Domain',
+      },
+      {
         accessorKey: 'created_at',
         header: 'Created At',
-        size: 160,
         cell: ({ row }) => {
           const date = row.getValue('created_at') as string
           return date && <DateTime date={date} formatStr="dd/MM/yyyy HH:mm" />
@@ -100,7 +102,6 @@ export default function UserMembershipsIndex() {
       {
         accessorKey: 'updated_at',
         header: 'Updated At',
-        size: 160,
         cell: ({ row }) => {
           const date = row.getValue('updated_at') as string
           return date && <DateTime date={date} formatStr="dd/MM/yyyy HH:mm" />
