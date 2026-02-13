@@ -1,6 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
 import { RoleType } from '@/resources/queries/roles/role.type'
@@ -33,7 +33,7 @@ export async function loader({ request }: { request: Request }) {
 
 export default function RolesIndex() {
   const { apiUrl, nodeEnv, pagination: rolePagination } = useLoaderData<typeof loader>()
-  const { token, isLoading: isLoadingAuth } = useApp()
+  const { token, isLoadingIdenties } = useApp()
   const navigate = useNavigate()
   const deleteConfirmationRef = useRef<DeleteConfirmationHandle>(null)
 
@@ -42,7 +42,7 @@ export default function RolesIndex() {
   const { data, isLoading, error } = useRoles(
     config,
     { page: rolePagination.page, size: rolePagination.size },
-    { enabled: !!token && !isLoadingAuth }
+    { enabled: !!token && !isLoadingIdenties }
   )
 
   const { mutateAsync: deleteRole } = useDeleteRole(config, {
@@ -186,7 +186,7 @@ export default function RolesIndex() {
     [navigate]
   )
 
-  if (isLoading) {
+  if (isLoading || isLoadingIdenties) {
     return <AppPreloader />
   }
 

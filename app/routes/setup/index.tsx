@@ -5,7 +5,7 @@ import { fetchApi } from '@/libraries/fetch'
 import { useLoaderData, useNavigate } from 'react-router'
 import { useEffect, useState } from 'react'
 import { toast } from 'tessera-ui/components'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useHandleApiError } from '@/hooks/useHandleApiError'
 
 export async function loader() {

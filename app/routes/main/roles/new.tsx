@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigate } from 'react-router'
 import { RoleForm } from '@/components/crud-forms/role-form'
 import { useCreateRole } from '@/resources/hooks/roles/use-role'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { roleFormDefaultValue } from '@/resources/queries/roles/role.schema'
 import { RoleFormData } from '@/resources/queries/roles/role.type'
 import { IQueryConfig } from '@/resources/queries'

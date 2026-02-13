@@ -29,11 +29,6 @@ export default defineConfig((config) => {
     server: {
       port: 3000,
     },
-    ssr: {
-      optimizeDeps: {
-        include: ['react-dom/server.node'],
-      },
-    },
     plugins,
     test: {
       globals: true,

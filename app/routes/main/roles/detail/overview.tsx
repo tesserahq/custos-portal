@@ -1,6 +1,6 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { DetailContent } from '@/components/detail-content'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRole } from '@/resources/hooks/roles/use-role'
 import { Button } from '@shadcn/ui/button'

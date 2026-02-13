@@ -1,5 +1,5 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
 import { useUser } from '@/resources/hooks/users/use-user'
 import { FileText, Users } from 'lucide-react'
@@ -27,12 +27,12 @@ export default function UserDetailLayout() {
     {
       title: 'Overview',
       path: `/users/${params.id}/overview`,
-      icon: <FileText size={18} />,
+      icon: Users,
     },
     {
       title: 'Memberships',
       path: `/users/${params.id}/memberships`,
-      icon: <Users size={18} />,
+      icon: Users,
     },
   ]
 

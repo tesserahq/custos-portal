@@ -1,137 +1,128 @@
-import { Header, SidebarPanel, SidebarPanelMin } from '@/components/layouts'
-import { IMenuItemProps } from '@/components/layouts/sidebar/types'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
-import '@/styles/sidebar.css'
-import { cn } from '@shadcn/lib/utils'
+import { useHandleApiError } from '@/hooks/useHandleApiError'
+import { useRequestInfo } from '@/hooks/useRequestInfo'
+import { ROUTE_PATH as THEME_PATH } from '@/routes/resources/update-theme'
+import { SITE_CONFIG } from '@/utils/config/site.config'
+import { useAuth0 } from '@auth0/auth0-react'
 import { KeyRound, Users } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Outlet, useLoaderData } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Outlet, useLoaderData, useNavigate, useSubmit } from 'react-router'
+import { Layout, MainItemProps, TesseraProvider } from 'tessera-ui'
 
 export function loader() {
-  const apiUrl = process.env.API_URL
-  const hostUrl = process.env.HOST_URL
-  const nodeEnv = process.env.NODE_ENV
+  const identiesApiUrl = process.env.IDENTIES_API_URL
   // app host urls
   const quoreHostUrl = process.env.QUORE_HOST_URL
   const looplyHostUrl = process.env.LOOPLY_HOST_URL
   const vaultaHostUrl = process.env.VAULTA_HOST_URL
   const identiesHostUrl = process.env.IDENTIES_HOST_URL
   const orchaHostUrl = process.env.ORCHA_HOST_URL
+  const custosHostUrl = process.env.CUSTOS_HOST_URL
+  const indexaHostUrl = process.env.INDEXA_HOST_URL
+  const sendlyHostUrl = process.env.SENDLY_HOST_URL
 
   return {
-    apiUrl,
-    hostUrl,
-    nodeEnv,
     quoreHostUrl,
     looplyHostUrl,
     vaultaHostUrl,
     identiesHostUrl,
     orchaHostUrl,
+    custosHostUrl,
+    indexaHostUrl,
+    sendlyHostUrl,
+    identiesApiUrl,
   }
 }
 
-export default function Layout() {
+export default function PrivateLayout() {
   const {
-    apiUrl,
-    hostUrl,
-    nodeEnv,
+    identiesApiUrl,
     quoreHostUrl,
     looplyHostUrl,
     vaultaHostUrl,
     identiesHostUrl,
     orchaHostUrl,
+    custosHostUrl,
+    indexaHostUrl,
+    sendlyHostUrl,
   } = useLoaderData<typeof loader>()
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { isLoading } = useApp()
-  const [isExpanded, setIsExpanded] = useState(true)
 
-  const apps = useMemo(() => {
-    return [
-      {
-        name: 'quore',
-        link: `${quoreHostUrl}?autologin=true`,
-      },
-      {
-        name: 'looply',
-        link: `${looplyHostUrl}?autologin=true`,
-      },
-      {
-        name: 'vaulta',
-        link: `${vaultaHostUrl}?autologin=true`,
-      },
-      {
-        name: 'identies',
-        link: `${identiesHostUrl}?autologin=true`,
-      },
-      {
-        name: 'orcha',
-        link: `${orchaHostUrl}?autologin=true`,
-      },
-    ]
-  }, [quoreHostUrl, looplyHostUrl, vaultaHostUrl, identiesHostUrl, orchaHostUrl])
+  const { isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0()
+  const [token, setToken] = useState<string>('')
+  const handleApiError = useHandleApiError()
+  const requestInfo = useRequestInfo()
+  const submit = useSubmit()
 
-  const menuItems: IMenuItemProps[] = [
+  const onSetTheme = (theme: string) => {
+    submit(
+      { theme },
+      {
+        method: 'POST',
+        action: THEME_PATH,
+        navigate: false,
+        fetcherKey: 'theme-fetcher',
+      }
+    )
+  }
+  const fetchToken = async () => {
+    try {
+      const token = await getAccessTokenSilently()
+      setToken(token)
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      handleApiError!(error)
+    }
+  }
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      fetchToken()
+    }
+  }, [isLoading, isAuthenticated])
+
+  const appHostUrls = {
+    quore: quoreHostUrl!,
+    looply: looplyHostUrl!,
+    vaulta: vaultaHostUrl!,
+    identies: identiesHostUrl!,
+    orcha: orchaHostUrl!,
+    custos: custosHostUrl!,
+    indexa: indexaHostUrl!,
+    sendly: sendlyHostUrl!,
+  }
+
+  const menuItems: MainItemProps[] = [
     {
       title: 'Roles',
       path: `/roles`,
-      icon: <KeyRound size={18} />,
+      icon: KeyRound,
     },
     {
       title: 'Users',
       path: '/users',
-      icon: <Users size={18} />,
+      icon: Users,
     },
   ]
-
-  const onResize = useCallback(() => {
-    if (containerRef.current) {
-      if (containerRef.current.offsetWidth <= 1280) {
-        setIsExpanded(false)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    onResize()
-
-    window.addEventListener('resize', onResize)
-
-    return () => {
-      window.removeEventListener('resize', onResize)
-    }
-  }, [onResize])
 
   if (isLoading) {
     return <AppPreloader className="min-h-screen" />
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={cn('has-min-sidebar is-header-blur', isExpanded && 'is-sidebar-open')}>
-      <div id="root" className="min-h-100vh flex grow">
-        <div className="sidebar print:hidden">
-          <SidebarPanel menuItems={menuItems} />
-          <SidebarPanelMin menuItems={menuItems} />
-        </div>
-
-        <Header
-          withSidebar
-          apiUrl={apiUrl!}
-          nodeEnv={nodeEnv}
-          hostUrl={hostUrl}
-          isExpanded={isExpanded}
-          setIsExpanded={setIsExpanded}
-          apps={apps}
+    <TesseraProvider identiesApiUrl={identiesApiUrl!} token={token}>
+      <Layout.Main menuItems={menuItems}>
+        <Layout.Header
+          appHostUrls={appHostUrls}
+          actionLogout={() => {}}
+          actionProfile={() => {}}
+          defaultAvatar=""
+          onSetTheme={(theme) => onSetTheme(theme)}
+          selectedTheme={requestInfo.userPrefs.theme || 'system'}
+          title={SITE_CONFIG.siteTitle}
         />
-
-        <main className="main-content w-full">
-          <div className="mx-auto h-full w-full">
-            <Outlet />
-          </div>
-        </main>
-      </div>
-    </div>
+        <Outlet />
+      </Layout.Main>
+    </TesseraProvider>
   )
 }

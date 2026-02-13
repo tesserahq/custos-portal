@@ -1,6 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Badge } from '@/modules/shadcn/ui/badge'
 import { Button } from '@/modules/shadcn/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
@@ -31,7 +31,7 @@ export async function loader({ request }: { request: Request }) {
 
 export default function UsersIndex() {
   const { apiUrl, nodeEnv, pagination } = useLoaderData<typeof loader>()
-  const { token, isLoading: isLoadingAuth } = useApp()
+  const { token, isLoadingIdenties } = useApp()
   const navigate = useNavigate()
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
@@ -39,7 +39,7 @@ export default function UsersIndex() {
   const { data, isLoading, error } = useUsers(
     config,
     { page: pagination.page, size: pagination.size },
-    { enabled: !!token && !isLoadingAuth }
+    { enabled: !!token && !isLoadingIdenties }
   )
 
   const columns = useMemo<ColumnDef<UserType>[]>(

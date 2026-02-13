@@ -1,7 +1,7 @@
 import { DetailContent } from '@/components/detail-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { PermissionContent } from '@/components/permissions/content'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
 import {
   Tooltip,

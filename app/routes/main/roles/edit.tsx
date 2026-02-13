@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigate } from 'react-router'
 import { RoleForm } from '@/components/crud-forms/role-form'
 import { useRole, useUpdateRole } from '@/resources/hooks/roles/use-role'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@shadcn/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { AppPreloader } from '@/components/loader/pre-loader'
@@ -17,7 +17,7 @@ export async function loader({ params }: { params: { id: string } }) {
 
 export default function EditRole() {
   const { apiUrl, nodeEnv, id } = useLoaderData<typeof loader>()
-  const { token, isLoading: isLoadingAuth } = useApp()
+  const { token, isLoadingIdenties } = useApp()
   const navigate = useNavigate()
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
@@ -26,7 +26,7 @@ export default function EditRole() {
     data: role,
     isLoading,
     error,
-  } = useRole(config, id, { enabled: !!token && !isLoadingAuth })
+  } = useRole(config, id, { enabled: !!token && !isLoadingIdenties })
 
   const { mutateAsync: updateRole, isPending } = useUpdateRole(config, {
     onSuccess: (data) => {

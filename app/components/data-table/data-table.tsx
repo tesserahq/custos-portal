@@ -140,7 +140,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       {meta?.size && (
-        <div className="border-input bg-card dark:bg-navy-800 sticky bottom-0 z-10 border-t p-3">
+        <div className="border-input bg-card sticky bottom-0 z-10 border-t p-3">
           <Pagination meta={meta} scope={paginationScope} callback={callbackPagination} />
         </div>
       )}
