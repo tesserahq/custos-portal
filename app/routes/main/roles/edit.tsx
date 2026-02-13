@@ -17,7 +17,7 @@ export async function loader({ params }: { params: { id: string } }) {
 
 export default function EditRole() {
   const { apiUrl, nodeEnv, id } = useLoaderData<typeof loader>()
-  const { token, isLoading: isLoadingAuth } = useApp()
+  const { token, isLoadingIdenties } = useApp()
   const navigate = useNavigate()
 
   const config = { apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }
@@ -26,7 +26,7 @@ export default function EditRole() {
     data: role,
     isLoading,
     error,
-  } = useRole(config, id, { enabled: !!token && !isLoadingAuth })
+  } = useRole(config, id, { enabled: !!token && !isLoadingIdenties })
 
   const { mutateAsync: updateRole, isPending } = useUpdateRole(config, {
     onSuccess: (data) => {
