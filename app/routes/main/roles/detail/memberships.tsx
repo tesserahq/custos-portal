@@ -1,5 +1,5 @@
 import { MembershipContent } from '@/components/memberhips'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useLoaderData } from 'react-router'
 
 export async function loader({ params }: { params: { id: string } }) {

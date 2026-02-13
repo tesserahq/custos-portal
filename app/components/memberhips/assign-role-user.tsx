@@ -17,7 +17,7 @@ import {
   CommandList,
 } from '@/modules/shadcn/ui/command'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useRoles } from '@/resources/hooks/roles/use-role'
 import { NodeENVType } from '@/libraries/fetch'
 import { RoleType } from '@/resources/queries/roles/role.type'

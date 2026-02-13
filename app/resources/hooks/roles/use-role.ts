@@ -52,21 +52,21 @@ export function useRoles(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: roleQueryKeys.list(config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await getRoles(config, params)
       } catch (error: any) {
         throw new QueryError(error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false,
+    enabled: options?.enabled !== false && !!config.token,
   })
 }
 
@@ -81,21 +81,21 @@ export function useRole(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: roleQueryKeys.detail(id),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await getRole(config, id)
       } catch (error: any) {
         throw new QueryError(error)
       }
     },
     staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled !== false && !!id,
+    enabled: options?.enabled !== false && !!id && !!config.token,
   })
 }
 
@@ -111,13 +111,13 @@ export function useCreateRole(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (data: CreateRoleData) => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await createRole(config, data)
       } catch (error: any) {
         throw new QueryError(error)
@@ -150,13 +150,13 @@ export function useUpdateRole(
 ) {
   const client = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateRoleData }) => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await updateRole(config, id, data)
       } catch (error: any) {
         throw new QueryError(error)
@@ -191,13 +191,13 @@ export function useDeleteRole(
 ) {
   const queryClient = useQueryClient()
 
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useMutation({
     mutationFn: async (id: string) => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await deleteRole(config, id)
       } catch (error: any) {
         throw new QueryError(error)

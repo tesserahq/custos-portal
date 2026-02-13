@@ -1,7 +1,7 @@
 import { DataTable } from '@/components/data-table'
 import { DetailContent } from '@/components/detail-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { AssignRoleUserDialog } from '@/components/memberhips'
 import type { AssignRoleUserDialogHandle } from '@/components/memberhips/assign-role-user'
 import { useUserMemberships } from '@/resources/hooks/users/use-user'

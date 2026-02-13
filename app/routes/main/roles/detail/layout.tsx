@@ -1,5 +1,5 @@
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@/modules/shadcn/ui/button'
 import { useRole } from '@/resources/hooks/roles/use-role'
 import { FileText, KeyRound, Users } from 'lucide-react'
@@ -28,17 +28,17 @@ export default function RoleDetailLayout() {
     {
       title: 'Overview',
       path: `/roles/${params.id}/overview`,
-      icon: <FileText size={18} />,
+      icon: FileText,
     },
     {
       title: 'Permissions',
       path: `/roles/${params.id}/permissions`,
-      icon: <KeyRound size={18} />,
+      icon: KeyRound,
     },
     {
       title: 'Memberships',
       path: `/roles/${params.id}/memberships`,
-      icon: <Users size={18} />,
+      icon: Users,
     },
   ]
 
@@ -95,7 +95,7 @@ export default function RoleDetailLayout() {
 
   return (
     <Layout.Detail menuItems={menuItems} breadcrumb={breadcrumb}>
-      <div className="max-w-screen-2xl mx-auto">
+      <div className="max-w-screen-2xl mx-auto p-3">
         <Outlet />
       </div>
     </Layout.Detail>

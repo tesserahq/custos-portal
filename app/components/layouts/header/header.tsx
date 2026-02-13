@@ -55,15 +55,6 @@ export function Header({ isExpanded, setIsExpanded, action, withSidebar, apps }:
                   <span className="text-base font-bold">Custos</span>
                 </div>
               </Link>
-              {withSidebar && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setIsExpanded!(!isExpanded)}
-                  className="h-8 w-8">
-                  <PanelLeft />
-                </Button>
-              )}
 
               {action && (
                 <Separator
@@ -76,7 +67,6 @@ export function Header({ isExpanded, setIsExpanded, action, withSidebar, apps }:
 
             {/* Right content */}
             <div className="flex items-center space-x-1 lg:space-x-5">
-              <AppMenu apps={apps || []} />
               {/* <NewResourceShortcut /> */}
               <ProfileMenu
                 selectedTheme={requestInfo.userPrefs.theme || 'system'}

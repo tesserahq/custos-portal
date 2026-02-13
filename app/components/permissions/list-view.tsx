@@ -3,13 +3,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/pop
 import { useDeletePermission } from '@/resources/hooks/permissions/use-permission'
 import { PermissionType } from '@/resources/queries/permissions/permission.type'
 import { ColumnDef } from '@tanstack/react-table'
-import { EllipsisVertical, Search, Trash2 } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
-import { DataTable } from '../data-table'
+import { EllipsisVertical, Trash2 } from 'lucide-react'
+import { useMemo, useRef } from 'react'
 import { DateTime } from 'tessera-ui/components'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,
 } from 'tessera-ui/components/delete-confirmation'
+import { DataTable } from '../data-table'
 import { PermissionContentProps } from './type'
 
 export default function PermissionListView({
@@ -52,7 +52,7 @@ export default function PermissionListView({
         cell: ({ row }) => {
           const { object, action } = row.original
           return (
-            <div className="max-w-[200px] truncate" title={object}>
+            <div>
               {object || '-'}.{action || '-'}
             </div>
           )

@@ -1,5 +1,5 @@
 import { PermissionContent } from '@/components/permissions/content'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { useLoaderData } from 'react-router'
 
 export async function loader({ request, params }: { request: Request; params: { id: string } }) {

@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigate } from 'react-router'
 import { RoleForm } from '@/components/crud-forms/role-form'
 import { useRole, useUpdateRole } from '@/resources/hooks/roles/use-role'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Button } from '@shadcn/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { AppPreloader } from '@/components/loader/pre-loader'

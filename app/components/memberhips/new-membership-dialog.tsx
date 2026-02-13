@@ -21,7 +21,7 @@ import { useServiceAccounts } from '@/resources/hooks/service-accounts/use-servi
 import { useCreateRoleMembership } from '@/resources/hooks/memberships/use-membership'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { NodeENVType } from '@/libraries/fetch'
-import { useApp } from '@/context/AppContext'
+import { useApp } from 'tessera-ui'
 import { Label } from '@/modules/shadcn/ui/label'
 import { Input } from '@/modules/shadcn/ui/input'
 import { useUsers } from '@/resources/hooks/users/use-user'
