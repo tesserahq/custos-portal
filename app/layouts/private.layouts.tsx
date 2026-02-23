@@ -6,7 +6,7 @@ import { SITE_CONFIG } from '@/utils/config/site.config'
 import { useAuth0 } from '@auth0/auth0-react'
 import { KeyRound, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Outlet, useLoaderData, useNavigate, useSubmit } from 'react-router'
+import { Outlet, useLoaderData, useNavigate, useParams, useSubmit } from 'react-router'
 import { Layout, MainItemProps, TesseraProvider } from 'tessera-ui'
 
 export function loader() {
@@ -52,6 +52,8 @@ export default function PrivateLayout() {
   const handleApiError = useHandleApiError()
   const requestInfo = useRequestInfo()
   const submit = useSubmit()
+  const params = useParams()
+  const shouldCollapseSidebar = Boolean(params['roleID'] || params['userID'])
 
   const onSetTheme = (theme: string) => {
     submit(
@@ -111,7 +113,7 @@ export default function PrivateLayout() {
 
   return (
     <TesseraProvider identiesApiUrl={identiesApiUrl!} token={token}>
-      <Layout.Main menuItems={menuItems}>
+      <Layout.Main menuItems={menuItems} collapseSidebar={shouldCollapseSidebar}>
         <Layout.Header
           appHostUrls={appHostUrls}
           actionLogout={() => {}}

@@ -1,12 +1,11 @@
-import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import useBreadcrumb from '@/hooks/useBreadcrumbs'
 import { Button } from '@/modules/shadcn/ui/button'
 import { useRole } from '@/resources/hooks/roles/use-role'
 import { FileText, KeyRound, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useLocation, useNavigate, useParams } from 'react-router'
+import { useApp } from 'tessera-ui'
 import { EmptyContent } from 'tessera-ui/components'
-import { Layout, DetailItemsProps, BreadcrumbItemData } from 'tessera-ui/layouts'
+import { DetailItemsProps, Layout } from 'tessera-ui/layouts'
 
 export function loader({ params }: { params: { id: string } }) {
   const apiUrl = process.env.API_URL
@@ -21,23 +20,22 @@ export default function RoleDetailLayout() {
   const params = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItemData[]>([])
 
   // Nested Items for the role
   const menuItems: DetailItemsProps[] = [
     {
       title: 'Overview',
-      path: `/roles/${params.id}/overview`,
+      path: `/roles/${params.roleID}/overview`,
       icon: FileText,
     },
     {
       title: 'Permissions',
-      path: `/roles/${params.id}/permissions`,
+      path: `/roles/${params.roleID}/permissions`,
       icon: KeyRound,
     },
     {
       title: 'Memberships',
-      path: `/roles/${params.id}/memberships`,
+      path: `/roles/${params.roleID}/memberships`,
       icon: Users,
     },
   ]
@@ -47,42 +45,21 @@ export default function RoleDetailLayout() {
     data: role,
     isLoading,
     error,
-  } = useRole({ apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }, params.id as string, {
+  } = useRole({ apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }, params.roleID as string, {
     enabled: !!token,
   })
 
-  // Generate breadcrumb based on the pathname and role name
-  const generatingBreadcrumb = async () => {
-    const breadcrumbItems = []
+  const breadcrumbs = useBreadcrumb({
+    pathname,
+    params,
+    apiUrl,
+    nodeEnv,
+    token: token ?? undefined,
+  })
 
-    const pathParts = pathname.split('/').filter(Boolean)
+  const roleID = params.roleID
 
-    for (let index = 0; index < pathParts.length; index++) {
-      const part = pathParts[index]
-
-      breadcrumbItems.push({
-        // If the part is the same as the role id, use the role name, otherwise use the part
-        label: part === params?.id ? role?.name || '' : part,
-
-        // Generate the link based on the path parts
-        link: `/${pathParts.slice(0, index + 1).join('/')}`,
-      })
-    }
-
-    setBreadcrumb(breadcrumbItems)
-  }
-
-  useEffect(() => {
-    if (role) {
-      generatingBreadcrumb()
-    }
-  }, [role, pathname])
-
-  if (isLoading || !token) {
-    return <AppPreloader className="min-h-screen" />
-  }
-
-  if (error || !role) {
+  if (!isLoading && (error || !role)) {
     return (
       <EmptyContent
         title="Role Not Found"
@@ -94,7 +71,10 @@ export default function RoleDetailLayout() {
   }
 
   return (
-    <Layout.Detail menuItems={menuItems} breadcrumb={breadcrumb}>
+    <Layout.Detail
+      menuItems={menuItems}
+      breadcrumbs={breadcrumbs}
+      isLoading={breadcrumbs.length == 0 || !token || !roleID}>
       <div className="max-w-screen-2xl mx-auto p-3">
         <Outlet />
       </div>

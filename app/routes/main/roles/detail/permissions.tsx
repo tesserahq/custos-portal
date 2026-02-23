@@ -1,13 +1,19 @@
 import { PermissionContent } from '@/components/permissions/content'
-import { useApp } from 'tessera-ui'
 import { useLoaderData } from 'react-router'
+import { useApp } from 'tessera-ui'
 
-export async function loader({ request, params }: { request: Request; params: { id: string } }) {
+export async function loader({
+  request,
+  params,
+}: {
+  request: Request
+  params: { roleID: string }
+}) {
   const apiUrl = process.env.API_URL
   const identiesApiUrl = process.env.IDENTIES_API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv, id: params.id, identiesApiUrl }
+  return { apiUrl, nodeEnv, id: params.roleID, identiesApiUrl }
 }
 
 export default function RolePermissions() {
