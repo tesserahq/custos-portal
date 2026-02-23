@@ -13,15 +13,15 @@ import { useMembership } from '@/resources/hooks/memberships/use-membership'
 import { Link, useLoaderData, useNavigate } from 'react-router'
 import { DateTime, EmptyContent } from 'tessera-ui/components'
 
-export async function loader({ params }: { params: { id: string; membershipId: string } }) {
+export async function loader({ params }: { params: { userID: string; membershipID: string } }) {
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv, userId: params.id, membershipId: params.membershipId }
+  return { apiUrl, nodeEnv, userId: params.userID, membershipID: params.membershipID }
 }
 
 export default function UserMembershipDetail() {
-  const { apiUrl, nodeEnv, userId, membershipId } = useLoaderData<typeof loader>()
+  const { apiUrl, nodeEnv, userId, membershipID } = useLoaderData<typeof loader>()
   const { token } = useApp()
   const navigate = useNavigate()
 
@@ -31,7 +31,7 @@ export default function UserMembershipDetail() {
     data: membership,
     isLoading,
     error,
-  } = useMembership(config, membershipId, {
+  } = useMembership(config, membershipID, {
     enabled: !!token,
   })
 
@@ -44,7 +44,7 @@ export default function UserMembershipDetail() {
       <EmptyContent
         title="Membership Not Found"
         image="/images/empty-memberships.png"
-        description={`We can't find membership with ID ${membershipId} ${(error as Error)?.message}`}>
+        description={`We can't find membership with ID ${membershipID} ${(error as Error)?.message}`}>
         <Button onClick={() => navigate(`/users/${userId}/memberships`)}>
           Back to Memberships
         </Button>

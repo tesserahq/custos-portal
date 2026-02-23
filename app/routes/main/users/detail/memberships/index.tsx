@@ -20,11 +20,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/pop
 import { Button } from '@shadcn/ui/button'
 import { EllipsisVertical, EyeIcon, Trash2 } from 'lucide-react'
 
-export async function loader({ params }: { params: { id: string } }) {
+export async function loader({ params }: { params: { userID: string } }) {
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv, id: params.id }
+  return { apiUrl, nodeEnv, id: params.userID }
 }
 
 export default function UserMembershipsIndex() {

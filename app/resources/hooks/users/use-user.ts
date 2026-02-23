@@ -59,14 +59,14 @@ export function useUsers(
     isIdenties?: boolean
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: userQueryKeys.list(config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await getUsers(config, params, options?.isIdenties)
       } catch (error: any) {
         throw new QueryError(error)
@@ -88,14 +88,14 @@ export function useUser(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: userQueryKeys.detail(id),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await getUser(config, id)
       } catch (error: any) {
         throw new QueryError(error)
@@ -122,14 +122,14 @@ export function useUserMemberships(
     staleTime?: number
   }
 ) {
-  if (!config.token) {
-    throw new QueryError('Token is required', 'TOKEN_REQUIRED')
-  }
-
   return useQuery({
     queryKey: userQueryKeys.membershipList(userId, config, params),
     queryFn: async () => {
       try {
+        if (!config.token) {
+          throw new QueryError('Token is required', 'TOKEN_REQUIRED')
+        }
+
         return await getUserMemberships(config, userId, params)
       } catch (error: any) {
         throw new QueryError(error)

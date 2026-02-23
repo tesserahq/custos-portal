@@ -14,8 +14,8 @@ export default [
     route('roles', 'routes/main/roles/layout.tsx', [
       index('routes/main/roles/index.tsx'),
       route('new', 'routes/main/roles/new.tsx'),
-      route(':id/edit', 'routes/main/roles/edit.tsx'),
-      route(':id', 'routes/main/roles/detail/layout.tsx', [
+      route(':roleID/edit', 'routes/main/roles/edit.tsx'),
+      route(':roleID', 'routes/main/roles/detail/layout.tsx', [
         index('routes/main/roles/detail/index.tsx'),
         route('overview', 'routes/main/roles/detail/overview.tsx'),
         route('permissions', 'routes/main/roles/detail/permissions.tsx'),
@@ -25,11 +25,11 @@ export default [
 
     route('users', 'routes/main/users/layout.tsx', [
       index('routes/main/users/index.tsx'),
-      route(':id', 'routes/main/users/detail/layout.tsx', [
+      route(':userID', 'routes/main/users/detail/layout.tsx', [
         index('routes/main/users/detail/index.tsx'),
         route('overview', 'routes/main/users/detail/overview.tsx'),
         route('memberships', 'routes/main/users/detail/memberships/index.tsx'),
-        route('memberships/:membershipId', 'routes/main/users/detail/memberships/detail.tsx'),
+        route('memberships/:membershipID', 'routes/main/users/detail/memberships/detail.tsx'),
       ]),
     ]),
   ]),

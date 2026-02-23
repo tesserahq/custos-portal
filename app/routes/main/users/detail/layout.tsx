@@ -7,12 +7,13 @@ import { useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useLocation, useNavigate, useParams } from 'react-router'
 import { EmptyContent } from 'tessera-ui/components'
 import { BreadcrumbItemData, DetailItemsProps, Layout } from 'tessera-ui/layouts'
+import useBreadcrumb from '@/hooks/useBreadcrumbs'
 
-export function loader({ params }: { params: { id: string } }) {
+export function loader({ params }: { params: { userID: string } }) {
   const apiUrl = process.env.API_URL
   const nodeEnv = process.env.NODE_ENV
 
-  return { apiUrl, nodeEnv, id: params.id }
+  return { apiUrl, nodeEnv, id: params.userID }
 }
 
 export default function UserDetailLayout() {
@@ -26,12 +27,12 @@ export default function UserDetailLayout() {
   const menuItems: DetailItemsProps[] = [
     {
       title: 'Overview',
-      path: `/users/${params.id}/overview`,
+      path: `/users/${params.userID}/overview`,
       icon: Users,
     },
     {
       title: 'Memberships',
-      path: `/users/${params.id}/memberships`,
+      path: `/users/${params.userID}/memberships`,
       icon: Users,
     },
   ]
@@ -40,50 +41,36 @@ export default function UserDetailLayout() {
     data: user,
     isLoading,
     error,
-  } = useUser({ apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }, params.id as string, {
+  } = useUser({ apiUrl: apiUrl!, token: token!, nodeEnv: nodeEnv }, params.userID as string, {
     enabled: !!token,
   })
 
-  const generatingBreadcrumb = async () => {
-    const breadcrumbItems = []
-    const pathParts = pathname.split('/').filter(Boolean)
+  const breadcrumbs = useBreadcrumb({
+    pathname,
+    params,
+    apiUrl,
+    nodeEnv,
+    token: token ?? undefined,
+  })
 
-    for (let index = 0; index < pathParts.length; index++) {
-      const part = pathParts[index]
-      const label = part === params?.id ? user?.email || '' : part
+  const userID = params.userID
 
-      breadcrumbItems.push({
-        label,
-        link: `/${pathParts.slice(0, index + 1).join('/')}`,
-      })
-    }
-
-    setBreadcrumb(breadcrumbItems)
-  }
-
-  useEffect(() => {
-    if (user) {
-      generatingBreadcrumb()
-    }
-  }, [user, pathname])
-
-  if (isLoading || !token) {
-    return <AppPreloader className="min-h-screen" />
-  }
-
-  if (error || !user) {
+  if (!isLoading && (error || !user)) {
     return (
       <EmptyContent
         title="User Not Found"
         image="/images/empty-users.png"
-        description={`We can't find user with ID ${params.id} ${(error as Error)?.message}`}>
+        description={`We can't find user with ID ${params.userID} ${(error as Error)?.message}`}>
         <Button onClick={() => navigate('/users')}>Back to Users</Button>
       </EmptyContent>
     )
   }
 
   return (
-    <Layout.Detail menuItems={menuItems} breadcrumb={breadcrumb}>
+    <Layout.Detail
+      menuItems={menuItems}
+      breadcrumbs={breadcrumbs}
+      isLoading={breadcrumbs.length == 0 || !token || !userID}>
       <div className="max-w-screen-2xl mx-auto">
         <Outlet />
       </div>
