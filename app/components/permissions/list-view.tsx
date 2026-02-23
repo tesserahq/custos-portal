@@ -5,6 +5,7 @@ import { PermissionType } from '@/resources/queries/permissions/permission.type'
 import { ColumnDef } from '@tanstack/react-table'
 import { EllipsisVertical, Trash2 } from 'lucide-react'
 import { useMemo, useRef } from 'react'
+import { ResourceID } from 'tessera-ui'
 import { DateTime } from 'tessera-ui/components'
 import DeleteConfirmation, {
   type DeleteConfirmationHandle,
@@ -78,6 +79,15 @@ export default function PermissionListView({
       },
       {
         accessorKey: 'id',
+        header: 'ID',
+        size: 150,
+        cell: ({ row }) => {
+          const id = row.getValue('id') as string
+          return <ResourceID value={id} />
+        },
+      },
+      {
+        id: 'actions',
         header: '',
         size: 50,
         cell: ({ row }) => {

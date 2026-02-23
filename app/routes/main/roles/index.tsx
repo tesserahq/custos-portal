@@ -1,6 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp } from 'tessera-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
 import { RoleType } from '@/resources/queries/roles/role.type'
@@ -94,7 +94,7 @@ export default function RolesIndex() {
         cell: ({ row }) => {
           const description = row.getValue('description') as string
           return (
-            <div className="max-w-[400px] truncate" title={description}>
+            <div className="max-w-[450px] truncate" title={description}>
               {description || '-'}
             </div>
           )
@@ -103,7 +103,7 @@ export default function RolesIndex() {
       {
         accessorKey: 'created_at',
         header: 'Created At',
-        size: 150,
+        size: 200,
         cell: ({ row }) => {
           const date = row.getValue('created_at') as string
           return <DateTime date={date} formatStr="dd/MM/yyyy HH:mm" />
@@ -112,10 +112,19 @@ export default function RolesIndex() {
       {
         accessorKey: 'updated_at',
         header: 'Updated At',
-        size: 150,
+        size: 200,
         cell: ({ row }) => {
           const date = row.getValue('updated_at') as string
           return <DateTime date={date} formatStr="dd/MM/yyyy HH:mm" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 150,
+        cell: ({ row }) => {
+          const id = row.getValue('id') as string
+          return <ResourceID value={id} />
         },
       },
       {
