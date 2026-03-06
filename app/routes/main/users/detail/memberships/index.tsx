@@ -53,6 +53,7 @@ export default function UserMembershipsIndex() {
   const { mutateAsync: deleteMembership } = useDeleteMembership(config, {
     onSuccess: () => {
       deleteConfirmationRef.current?.close()
+      refetchMemberships()
     },
     onError: () => {
       deleteConfirmationRef.current?.updateConfig({ isLoading: false })
