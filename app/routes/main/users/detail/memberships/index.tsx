@@ -1,7 +1,7 @@
 import { DataTable } from '@/components/data-table'
 import { DetailContent } from '@/components/detail-content'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp } from 'tessera-ui'
 import { AssignRoleUserDialog } from '@/components/memberhips'
 import type { AssignRoleUserDialogHandle } from '@/components/memberhips/assign-role-user'
 import { useUserMemberships } from '@/resources/hooks/users/use-user'
@@ -106,6 +106,13 @@ export default function UserMembershipsIndex() {
         cell: ({ row }) => {
           const date = row.getValue('updated_at') as string
           return date && <DateTime date={date} formatStr="dd/MM/yyyy HH:mm" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {
