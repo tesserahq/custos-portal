@@ -6,6 +6,7 @@ import {
   getMembership,
   getRoleMemberships,
 } from '@/resources/queries/memberships/membership.queries'
+import { userQueryKeys } from '@/resources/hooks/users/use-user'
 import {
   CreateMembershipData,
   MembershipType,
@@ -172,8 +173,10 @@ export function useDeleteMembership(
     onSuccess: (_, id) => {
       // Remove the specific membership from cache
       queryClient.removeQueries({ queryKey: membershipQueryKeys.detail(id) })
-      // Invalidate all list queries to refetch (since we don't know which role it belonged to)
+      // Invalidate role membership list queries
       queryClient.invalidateQueries({ queryKey: membershipQueryKeys.lists() })
+      // Invalidate user membership list queries (e.g. /users/:id/memberships page)
+      queryClient.invalidateQueries({ queryKey: userQueryKeys.memberships() })
       toast.success('Membership deleted successfully')
       options?.onSuccess?.()
     },

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DataTable } from '@/components/data-table'
 import { DateTime, NewButton } from 'tessera-ui/components'
+import { ResourceID } from 'tessera-ui'
 import { AppPreloader } from '@/components/loader/pre-loader'
 import {
   useRoleMemberships,
@@ -105,6 +106,14 @@ export function MembershipContent({
         cell: ({ row }) => {
           const createdAt = row.getValue('created_at') as string
           return createdAt && <DateTime date={createdAt} formatStr="dd/MM/yyyy HH:mm" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 150,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {

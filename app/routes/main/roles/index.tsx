@@ -1,6 +1,6 @@
 import { DataTable } from '@/components/data-table'
 import { AppPreloader } from '@/components/loader/pre-loader'
-import { useApp } from 'tessera-ui'
+import { ResourceID, useApp } from 'tessera-ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@/modules/shadcn/ui/popover'
 import { useDeleteRole, useRoles } from '@/resources/hooks/roles/use-role'
 import { RoleType } from '@/resources/queries/roles/role.type'
@@ -116,6 +116,14 @@ export default function RolesIndex() {
         cell: ({ row }) => {
           const date = row.getValue('updated_at') as string
           return <DateTime date={date} formatStr="dd/MM/yyyy HH:mm" />
+        },
+      },
+      {
+        accessorKey: 'id',
+        header: 'ID',
+        size: 150,
+        cell: ({ row }) => {
+          return <ResourceID value={row.original.id} />
         },
       },
       {
