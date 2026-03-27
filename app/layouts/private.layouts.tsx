@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppPreloader } from '@/components/loader/pre-loader'
 import { useHandleApiError } from '@/hooks/useHandleApiError'
 import { useRequestInfo } from '@/hooks/useRequestInfo'
@@ -11,41 +12,14 @@ import { Layout, MainItemProps, TesseraProvider } from 'tessera-ui'
 
 export function loader() {
   const identiesApiUrl = process.env.IDENTIES_API_URL
-  // app host urls
-  const quoreHostUrl = process.env.QUORE_HOST_URL
-  const looplyHostUrl = process.env.LOOPLY_HOST_URL
-  const vaultaHostUrl = process.env.VAULTA_HOST_URL
-  const identiesHostUrl = process.env.IDENTIES_HOST_URL
-  const orchaHostUrl = process.env.ORCHA_HOST_URL
-  const custosHostUrl = process.env.CUSTOS_HOST_URL
-  const indexaHostUrl = process.env.INDEXA_HOST_URL
-  const sendlyHostUrl = process.env.SENDLY_HOST_URL
 
   return {
-    quoreHostUrl,
-    looplyHostUrl,
-    vaultaHostUrl,
-    identiesHostUrl,
-    orchaHostUrl,
-    custosHostUrl,
-    indexaHostUrl,
-    sendlyHostUrl,
     identiesApiUrl,
   }
 }
 
 export default function PrivateLayout() {
-  const {
-    identiesApiUrl,
-    quoreHostUrl,
-    looplyHostUrl,
-    vaultaHostUrl,
-    identiesHostUrl,
-    orchaHostUrl,
-    custosHostUrl,
-    indexaHostUrl,
-    sendlyHostUrl,
-  } = useLoaderData<typeof loader>()
+  const { identiesApiUrl } = useLoaderData<typeof loader>()
 
   const { isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0()
   const [token, setToken] = useState<string>('')
@@ -70,8 +44,6 @@ export default function PrivateLayout() {
     try {
       const token = await getAccessTokenSilently()
       setToken(token)
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       handleApiError!(error)
     }
@@ -83,22 +55,11 @@ export default function PrivateLayout() {
     }
   }, [isLoading, isAuthenticated])
 
-  const appHostUrls = {
-    quore: quoreHostUrl!,
-    looply: looplyHostUrl!,
-    vaulta: vaultaHostUrl!,
-    identies: identiesHostUrl!,
-    orcha: orchaHostUrl!,
-    custos: custosHostUrl!,
-    indexa: indexaHostUrl!,
-    sendly: sendlyHostUrl!,
-  }
-
   const menuItems: MainItemProps[] = [
     {
       title: 'Roles',
       path: `/roles`,
-      icon: KeyRound,
+      icon: KeyRound as any,
     },
     {
       title: 'Users',
@@ -115,10 +76,9 @@ export default function PrivateLayout() {
     <TesseraProvider identiesApiUrl={identiesApiUrl!} token={token}>
       <Layout.Main menuItems={menuItems} collapseSidebar={shouldCollapseSidebar}>
         <Layout.Header
-          appHostUrls={appHostUrls}
           actionLogout={() => {}}
           actionProfile={() => {}}
-          defaultAvatar=""
+          defaultLogo="/images/logo.png"
           onSetTheme={(theme) => onSetTheme(theme)}
           selectedTheme={requestInfo.userPrefs.theme || 'system'}
           title={SITE_CONFIG.siteTitle}
