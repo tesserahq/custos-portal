@@ -1,7 +1,6 @@
 import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
 import { resolve } from 'path'
 
 export default defineConfig((config) => {
@@ -17,7 +16,7 @@ export default defineConfig((config) => {
   }
 
   // Build plugins array - exclude React Router plugin during tests
-  const plugins = [tailwindcss(), tsconfigPaths()]
+  const plugins = [tailwindcss()]
   if (!isTest) {
     plugins.push(reactRouter())
   }
@@ -25,6 +24,7 @@ export default defineConfig((config) => {
   return {
     resolve: {
       alias: aliases,
+      tsconfigPaths: true,
     },
     server: {
       port: 3000,
