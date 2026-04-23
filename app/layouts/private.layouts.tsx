@@ -20,13 +20,13 @@ export function loader() {
 
 export default function PrivateLayout() {
   const { identiesApiUrl } = useLoaderData<typeof loader>()
-
   const { isLoading, isAuthenticated, getAccessTokenSilently } = useAuth0()
   const [token, setToken] = useState<string>('')
   const handleApiError = useHandleApiError()
   const requestInfo = useRequestInfo()
   const submit = useSubmit()
   const params = useParams()
+  const navigate = useNavigate()
   const shouldCollapseSidebar = Boolean(params['roleID'] || params['userID'])
 
   const onSetTheme = (theme: string) => {
@@ -76,7 +76,7 @@ export default function PrivateLayout() {
     <TesseraProvider identiesApiUrl={identiesApiUrl!} token={token}>
       <Layout.Main menuItems={menuItems} collapseSidebar={shouldCollapseSidebar}>
         <Layout.Header
-          actionLogout={() => {}}
+          actionLogout={() => navigate('/logout')}
           actionProfile={() => {}}
           defaultLogo="/images/logo.png"
           onSetTheme={(theme) => onSetTheme(theme)}
